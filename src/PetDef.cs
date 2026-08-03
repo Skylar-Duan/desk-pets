@@ -71,6 +71,8 @@ namespace DeskPets
                 string file = (string)st["file"];
                 int frames = Convert.ToInt32(st["frames"]);
                 double fps = st.ContainsKey("fps") ? Convert.ToDouble(st["fps"]) : 6.0;
+                if (double.IsNaN(fps) || double.IsInfinity(fps) || fps <= 0) fps = 6.0;
+                if (fps > 60) fps = 60;
                 bool loop = st.ContainsKey("loop") ? Convert.ToBoolean(st["loop"]) : true;
                 string pngPath = Path.Combine(dir, file);
                 if (!File.Exists(pngPath) || frames < 1) continue;

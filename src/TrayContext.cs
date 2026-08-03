@@ -32,6 +32,7 @@ namespace DeskPets
             manager = new PetManager();
             manager.Start(defs);
 
+            SelfHealAutostart();
             miToggle = new MenuItem("隐藏小伙伴", OnToggle);
             miAutostart = new MenuItem("开机自动出现", OnAutostart);
             miAutostart.Checked = IsAutostartEnabled();
@@ -73,6 +74,23 @@ namespace DeskPets
                 MessageBox.Show("没能修改开机自启设置。", "桌面小伙伴",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        /// <summary>文件夹被移动/改名后，把注册表里的自启路径自动修正为当前位置。</summary>
+        static void SelfHealAutostart()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RunKeyPath, true))
+                {
+                    if (key == null) return;
+                    object val = key.GetValue(RunValueName);
+                    string expect = "\"" + Application.ExecutablePath + "\"";
+                    if (val is string && (string)val != expect)
+                        key.SetValue(RunValueName, expect);
+                }
+            }
+            catch (Exception) { }
         }
 
         static bool IsAutostartEnabled()
