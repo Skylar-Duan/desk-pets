@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>桌面小伙伴 desk-pets · 像素桌宠</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <h1><span class="px-badge">PIXEL</span> 桌面小伙伴</h1>
+  <p class="tagline">一只布偶猫、一只金毛，住进你的 Windows 桌面。<br>
+  全离线 · 零依赖 · 整包 24KB · 不挡鼠标不抢焦点</p>
+  <p class="try-hint">↓ 下面就是真实效果 —— <b>点它摸摸头，按住拖起来甩出去试试</b> ↓</p>
+</header>
+
+<section class="playground-wrap">
+  <div id="playground" class="playground" aria-label="宠物互动演示区"></div>
+  <div class="ground-line"></div>
+</section>
+
+<section class="download">
+  <a id="dl-btn" class="dl-btn" href="https://github.com/Skylar-Duan/desk-pets/releases/latest/download/DeskPets.zip">
+    ⬇ 下载 Windows 版（24KB）
+  </a>
+  <p class="dl-note">解压 → 双击 DeskPets.exe 即可 · Windows 10/11 免安装零依赖<br>
+  首次运行如遇 SmartScreen 提示：更多信息 → 仍要运行（仅一次）</p>
+</section>
+
+<section class="features">
+  <div class="card"><h3>🐾 活的，不是贴图</h3><p>散步、奔跑、坐着发呆、打盹；金毛还会时不时跑去找猫。每个动作 1–3 秒的克制循环，陪伴而不打扰。</p></div>
+  <div class="card"><h3>⌨️ 懂你的节奏</h3><p>你在打字它们就精神，你离开一会儿它们睡大觉。只读"距上次键鼠输入多少秒"这一个数字，不记录任何内容。</p></div>
+  <div class="card"><h3>🖱️ 摸得着，扔得动</h3><p>点一下摸摸头会开心冒爱心；按住拖走、甩出去有抛物线和落地小弹跳。</p></div>
+  <div class="card"><h3>👻 完全不碍事</h3><p>宠物身体之外的像素全部点击穿透；不进任务栏、不抢焦点，浮在所有窗口之上默默陪着。</p></div>
+  <div class="card"><h3>🪶 轻到离谱</h3><p>整包 24KB，内存约 30MB，CPU 约 3%。用 Windows 自带运行库，一个 exe 加一个素材文件夹，删掉即卸载。</p></div>
+  <div class="card"><h3>🎨 换装零门槛</h3><p>一个文件夹就是一只宠物：配置 JSON + 每个动作一条帧图。换素材不用改一行代码，未来支持上传自制皮肤。</p></div>
+</section>
+
+<section class="gallery">
+  <h2>全状态图鉴</h2>
+  <div id="gallery-ragdoll" class="gallery-row"><h3>小布 · 布偶猫</h3><div class="strip"></div></div>
+  <div id="gallery-golden" class="gallery-row"><h3>阿金 · 金毛</h3><div class="strip"></div></div>
+</section>
+
+<section class="spec">
+  <h2>皮肤规范（自制换装）</h2>
+  <p><code>pets/&lt;名字&gt;/</code> 一个文件夹 = 一只宠物：每个状态一条<b>横向帧条 PNG</b>（透明底、帧等宽）+ 一个 <code>pet.json</code>：</p>
+  <pre>{
+  "name": "小布",
+  "frameSize": [32, 24],
+  "scale": 3,
+  "states": {
+    "idle":  { "file": "idle.png",  "frames": 4, "fps": 3,  "loop": true },
+    "walk":  { "file": "walk.png",  "frames": 4, "fps": 8,  "loop": true },
+    "sleep": { "file": "sleep.png", "frames": 2, "fps": 2,  "loop": true }
+  }
+}</pre>
+  <p>状态全集 <code>idle / walk / run / sit / sleep / drag / fall / happy</code>；缺的状态自动回退（如没画 run 就用 walk）。把文件夹丢进 <code>pets/</code>，重启即生效。</p>
+</section>
+
+<footer>
+  <p>desk-pets · <a href="https://github.com/Skylar-Duan/desk-pets">GitHub</a> · cdpandas.com 工具站</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
