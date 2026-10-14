@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "atlas": "C:\\Users\\Janice\\Documents\\Codex\\2026-10-14\\pets-plugin-work-pets-openai-curated-2\\work\\nuomi\\final\\spritesheet-extended.png",
+  "encoded_bytes": 3068291,
+  "sha256": "3856fa14d613cc55f1d169a6170c0fd97ff606c5d04790ccc217c5bdbf56cc7c",
+  "jump": {
+    "idle_baseline": 201,
+    "jump_baselines": [
+      202,
+      192,
+      176,
+      187,
+      202
+    ],
+    "airborne_lift_pixels": 26,
+    "landing_delta_pixels": 1
+  },
+  "look_registration": {
+    "neutral_center_x": 96.0,
+    "look_centers_x": [
+      97.5,
+      97.5,
+      97.5,
+      97.5,
+      97.5,
+      97.5,
+      98.0,
+      97.5,
+      97.5,
+      93.5,
+      96.0,
+      96.5,
+      97.5,
+      97.0,
+      97.5,
+      97.5
+    ],
+    "look_widths": [
+      151,
+      147,
+      147,
+      147,
+      147,
+      149,
+      148,
+      147,
+      147,
+      151,
+      146,
+      145,
+      145,
+      146,
+      145,
+      145
+    ],
+    "maximum_center_drift_pixels": 2.5,
+    "maximum_width_ratio": 1.0413793103448277
+  },
+  "errors": [],
+  "warnings": [
+    "look direction 067.5 accepted with a reviewed warning",
+    "look direction 112.5 accepted with a reviewed warning",
+    "look direction 202.5 accepted with a reviewed warning",
+    "look direction 225 accepted with a reviewed warning",
+    "look direction 247.5 accepted with a reviewed warning",
+    "look direction 337.5 accepted with a reviewed warning",
+    "000 has transparent interior hole rows (y=12, y=13, y=14)",
+    "022.5 has transparent interior hole rows (y=11, y=12, y=13)",
+    "045 has transparent interior hole rows (y=10, y=11, y=12, y=13, +1 more)",
+    "067.5 has transparent interior hole rows (y=9, y=10, y=11, y=12, +1 more)",
+    "112.5 has transparent interior hole rows (y=11, y=12, y=13, y=14)",
+    "337.5 has transparent interior hole rows (y=22, y=23)",
+    "247.5->270 diff is a local outlier (2714 pixels vs neighbor average 1656)",
+    "337.5->000 diff is a local outlier (3734 pixels vs neighbor average 1569)",
+    "337.5->000 sprite area ratio is high (1.15)"
+  ]
+}

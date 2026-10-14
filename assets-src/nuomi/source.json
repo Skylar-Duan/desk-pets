@@ -1,0 +1,347 @@
+{
+  "name": "糯米",
+  "characterId": "nuomi",
+  "role": "third-character",
+  "runtimeStatus": "preserved-not-enabled",
+  "sourceThread": {
+    "id": "01a138c8-ee76-7970-8040-7dd1693eb582",
+    "title": "02/Pet-1014-创建并选择现代布偶猫形象"
+  },
+  "sourceDirectory": "C:\\Users\\Janice\\Documents\\Codex\\2026-10-14\\pets-plugin-work-pets-openai-curated-2\\outputs\\nuomi-codex-handoff",
+  "sourcePluginSnapshot": "work-pets 0.1.6",
+  "preservedDate": "2026-10-14",
+  "atlas": {
+    "file": "original/spritesheet.png",
+    "version": 2,
+    "width": 1536,
+    "height": 2288,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "columns": 8,
+    "rows": 11,
+    "standardFrames": 57,
+    "lookFrames": 16,
+    "sha256": "3856fa14d613cc55f1d169a6170c0fd97ff606c5d04790ccc217c5bdbf56cc7c"
+  },
+  "archive": {
+    "projectRelativePath": "_work/imports/nuomi-20261014/nuomi-codex-handoff.zip",
+    "bytes": 223346805,
+    "sha256": "4447e869c3dad471baedbd0366546eb53b84a8731e540440b89bd29d91c03716",
+    "zipFiles": 512,
+    "sourceManifestCheckedFiles": 511
+  },
+  "files": [
+    {
+      "path": "docs/ASSET_MAP.md",
+      "bytes": 1976,
+      "sha256": "60d9887d6034daac365922b05ada23b550184e4967dc147a644d99052938de69",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "docs/ENGINEERING_LOG.md",
+      "bytes": 4164,
+      "sha256": "25077e12fae47312836f29e72b20dec1d1be03920ec530ea51ae888b4be67a46",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "docs/REPRODUCTION.md",
+      "bytes": 2225,
+      "sha256": "321625ccff4ec961e746a895d79733db424c6fa4ca497b6b0901b7bd7279d18c",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "original/base.png",
+      "bytes": 1766845,
+      "sha256": "efc254223d9a5c94d7ab34c5cd8498d4e41c68f082a073f145784a3f5ed0fda1",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "original/spritesheet.png",
+      "bytes": 3068291,
+      "sha256": "3856fa14d613cc55f1d169a6170c0fd97ff606c5d04790ccc217c5bdbf56cc7c",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/all-states.gif",
+      "bytes": 973737,
+      "sha256": "5a9f045b00bcab25ef3debc3227bdc89665f9e41af7df7f66edf5045c260c87e",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/contact-sheet.png",
+      "bytes": 804108,
+      "sha256": "06e994dcacbfe8f2d9accbb5a30e6cafc8b6c0d09a84d1cd9f8fe331d907e570",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/direction-sheet.png",
+      "bytes": 895478,
+      "sha256": "324339c0d0c853fcc785bc654e17bf1f409703553a51f9af270cb25817d983a6",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/idle-jump-idle.gif",
+      "bytes": 148137,
+      "sha256": "2f58737a44f368a45f736fb179a003d2d4cd07506f3da10933cd0f14cab6a83d",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/look-loop.gif",
+      "bytes": 132236,
+      "sha256": "93ed64893e6a282b48fbe4db99b459e990997bd3f617677ba60769bd90cb624f",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "preview/waiting-preview.gif",
+      "bytes": 59810,
+      "sha256": "69cac26c9b334e6bec77bbb8b4ff43ff16605c3c8de35fd50a6775c72d6358fb",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/imagegen-jobs.json",
+      "bytes": 17897,
+      "sha256": "a702b1b0624922a3eaa3741213de0de883d39821b1d3efd129e3dde8c25f06ec",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/pet-info.json",
+      "bytes": 460,
+      "sha256": "34b32fafdde7db4d8294d64ab1bdc7b7c5c0f1eefb1237948dbdf0334a589da9",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/pet_request.json",
+      "bytes": 8111,
+      "sha256": "c7bb35bb35b934f17d634dad5f5a3b69440b04842eeea4324ff0a4300548e22a",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/base-pet.md",
+      "bytes": 1233,
+      "sha256": "642c29a8e9fdc64804e985f50b96b318a713e8e4983e82be67c6ab60cbd7a12f",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/look-anchor-repairs/000.md",
+      "bytes": 852,
+      "sha256": "35b6410da5e8ab7a1f588ac823cb1dbd19339e82b6e1baa595e99339dc8feee3",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/look-anchor-repairs/090.md",
+      "bytes": 869,
+      "sha256": "28caa84af8883cdeedb3ed392a1a806efedcd8c9877c698e91a48c6e695c9d3f",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/look-anchor-repairs/180.md",
+      "bytes": 857,
+      "sha256": "4263b4c017ac6c9d9d76029a00983ac2fb9750f1a1fa92b796befccd8a6575d6",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/look-anchor-repairs/270.md",
+      "bytes": 867,
+      "sha256": "da0c3e87326c5892616e1e06312ea1c93469abc34215b6b3fc8efb61ae0bc69d",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/look-cardinals.md",
+      "bytes": 1440,
+      "sha256": "ece708d29696f6a34bf290f2543b1d3399f2565001d7f57426170b2b84e3aae1",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/failed.md",
+      "bytes": 1594,
+      "sha256": "536225e7d02b5580f516757905ee69f8a0f73cc298387966409f2875acc54e47",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/idle.md",
+      "bytes": 2134,
+      "sha256": "ff107ebc1eb5162f1b4bedea4966bdcf07061d8f8f41b7990c3d7274a57d8ddc",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/jumping.md",
+      "bytes": 1592,
+      "sha256": "f295be1724983d914e4514d4b9324c72ebbd7670b17f3b54d96b6174c343332d",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/look-row-10.md",
+      "bytes": 3680,
+      "sha256": "346e56229350b82361383842151c700efaa22c85355706aeb87af0d5c865e6d9",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/look-row-9.md",
+      "bytes": 3596,
+      "sha256": "b745eb3538e21545e4d08bf6476f1444a15abf8ab08baf0238a797cc432f84b5",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/review.md",
+      "bytes": 1477,
+      "sha256": "0c048363fbc89be4f8f94e94b2feb6c590b1c45fd59762c0247c194837d8845b",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/running-left.md",
+      "bytes": 1585,
+      "sha256": "25d414ef82ab1de81609fd21c53b39edb303dfb33a687ef5a251be989a54cb8e",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/running-right.md",
+      "bytes": 1590,
+      "sha256": "6574930666f7a6e4e27f25389ab4b31e350133f7ea63ee1568082894866e8c45",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/running.md",
+      "bytes": 1822,
+      "sha256": "b64e5e365c2e383351047f2652c6461cc2e8b7c78ae01031136d8a6f74d1a946",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/waiting.md",
+      "bytes": 1390,
+      "sha256": "d0c551bf3a5105de7a4c61c29edd23c6bd200a6f1468d915d7031b616b394a1d",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/row-retries/waving.md",
+      "bytes": 1400,
+      "sha256": "5a77f9f2ff6fe837ddbef56cae37ce4fbda98eaeecf7ba83f4f51684104d711a",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/failed.md",
+      "bytes": 2336,
+      "sha256": "c68c59e9a814eee2bab4b5122f2f1a3f529364f5ab56b3e5ee14ea090e5db477",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/idle.md",
+      "bytes": 2876,
+      "sha256": "73bb4f24efb11a771f02af26ec1850df11acd35f1cd5ec107264e3cbf52cb279",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/jumping.md",
+      "bytes": 2334,
+      "sha256": "33049c85306e29156d92685ad47c674af2443e7350aeb633fce7f2cd22f09d02",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/look-row-10.md",
+      "bytes": 4796,
+      "sha256": "8409484910217bf7fe9d428cea0364623f4aec0b960111dafca8baef758eb1dc",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/look-row-9.md",
+      "bytes": 4726,
+      "sha256": "8f8c40dc60af4eff37f0a18d0d0fa1f9aaf3bf8231317dcb79ca28f40855cdaa",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/review.md",
+      "bytes": 2219,
+      "sha256": "0f78d5197ca7cfcb2ab5687327d3ab6114f17fe96fc58002218fc71a0add255e",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/running-left.md",
+      "bytes": 2327,
+      "sha256": "8c3da49f39410849455dbd71637f3ffdb9382d6e06322619a473b2b02a597a8b",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/running-right.md",
+      "bytes": 2332,
+      "sha256": "2c68e9388316a2fad67bdae25f325635a7e3c66d06b9b65cec802e98aad1320f",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/running.md",
+      "bytes": 2564,
+      "sha256": "2e9cff486eafb4790c1507cf419fd3c348befddb5f597b1611d680d2cbdd230c",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/waiting.md",
+      "bytes": 2132,
+      "sha256": "4e93b62f3f5ca826da315c1f2353ba2c4a20ca7c3e2c577862b8741653b027e2",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/prompts/rows/waving.md",
+      "bytes": 2142,
+      "sha256": "a1d40bdd60847e7299787142d83cf2e756ddfa5f1f978643ab19cca68bfe475e",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "provenance/request-brief.md",
+      "bytes": 1279,
+      "sha256": "fb24dca4f590fd8805250ffbb91fde0b13c0cbe361b8720645fb1d97c27904f5",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/direction-blind-validation.json",
+      "bytes": 5613,
+      "sha256": "a1914bf5b8479e3eeb89cd678d332e3bfad3b479b4faa5855715edc557ee84f7",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/direction-semantics.json",
+      "bytes": 5006,
+      "sha256": "06bb0d6c5adbb5cacb3d820aca87bc3588df7f09fbfc7614e4d2a4cb2d10ad1a",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/final-independent-visual-review.md",
+      "bytes": 4954,
+      "sha256": "df08ebc2a6d79e54bc13e7466c26d4b8cf69a512893c804d8cd37151b70c3073",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/look-continuity.json",
+      "bytes": 7097,
+      "sha256": "30388af86d6d8ffb2014fefc18892be6432b563299399593849b61bc723d723f",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/pet-quality.json",
+      "bytes": 2151,
+      "sha256": "0404ba506eb43fff85be8be4cca7030d285fd1b5f6382502530dbd8bc69737c5",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/user-feedback.md",
+      "bytes": 998,
+      "sha256": "9f462c130188bf32643dbebd4f35eed4614e03504848a1e8b4d5ae067c6b9784",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/validation-extended.json",
+      "bytes": 19155,
+      "sha256": "8bd7b7802f4b56bb6413800b4e56fd5bc92cfafc6308232f01ad47d5e6b77c3a",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "qa/waiting-anatomy-independent.md",
+      "bytes": 1916,
+      "sha256": "5287c4b519af93297f718b2d1421ea262799464ca1b41a585f757f2827613af2",
+      "origin": "original-handoff"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2126,
+      "sha256": "0d1a1bd64f3e32a0a9355926e07fccb5e5f4cc775e7c0600942bc5a96e73a127",
+      "origin": "project-note"
+    }
+  ]
+}

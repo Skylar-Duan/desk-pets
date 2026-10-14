@@ -1,0 +1,11 @@
+{
+  "pet_id": "pet_6acf1cba837881919b97e5a960bbef3a",
+  "name": "糯米",
+  "description": "一只可爱现代的蓝眼布偶猫，温柔陪伴工作。",
+  "is_custom": true,
+  "is_active": true,
+  "active_pet_id": "pet_6acf1cba837881919b97e5a960bbef3a",
+  "sprite_version": 2,
+  "spritesheet_sha256": "3856fa14d613cc55f1d169a6170c0fd97ff606c5d04790ccc217c5bdbf56cc7c",
+  "library_page_url": "https://chatgpt.com/space/page_139f41f3f70c819194834f332631b5f9"
+}
