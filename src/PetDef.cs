@@ -27,6 +27,7 @@ namespace DeskPets
     {
         public string Id;
         public string Name;
+        public string Breed;
         public int FrameW;
         public int FrameH;
         public int Scale;
@@ -64,6 +65,7 @@ namespace DeskPets
             PetDef def = new PetDef();
             def.Id = Path.GetFileName(dir);
             def.Name = root.ContainsKey("name") ? (string)root["name"] : def.Id;
+            def.Breed = root.ContainsKey("breed") ? (string)root["breed"] : def.Id == "golden" ? "金毛" : "布偶猫";
             object[] fs = (object[])root["frameSize"];
             def.FrameW = Convert.ToInt32(fs[0]);
             def.FrameH = Convert.ToInt32(fs[1]);

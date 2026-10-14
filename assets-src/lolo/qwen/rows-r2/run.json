@@ -1,0 +1,18 @@
+{
+  "state": "run",
+  "model": "qwen-image-2.1-pro",
+  "prompt": "Create EXACTLY FOUR equally sized cells in a single horizontal row, one complete pose in each cell. Each cell is 768x512 pixels; total canvas 3072x512. Input image is ONLY an identity reference for Lolo, one adult Golden Retriever, NOT one of the animation frames. Preserve the exact face, ears, fur colors, muzzle, proportions and soft modern character rendering. Maintain identical camera scale across all four frames AND across animation states: dog head at the same size; seated reference full dog height about 400 pixels in a cell. Do not enlarge sleeping or shrink moving poses to fill their cells. All paws, ears and tail inside each cell with 20 pixel safety padding. Genuinely transparent alpha background. All pixels outside the dog's physical silhouette MUST be fully transparent, including underneath and between paws. Absolutely no floor, no cast shadow, no grey blob under paws, no semi-transparent floor strip, no colored background, no painted checkerboard, no text, no labels, no grid lines, no watermarks. The four dogs remain separated by transparent margins, never overlap neighboring cells. Stable soft diffuse lighting. Animation instruction: Four sequential frames of a cheerful gentle running cycle in exact side profile moving toward screen RIGHT: nose points right and tail extends left. Four anatomically correct legs in varied stride phases, clear silhouettes, no extra paws, no body growth, no jumping or vertical displacement, at least one paw at ground baseline in each frame. Head size unchanged. Every one of the FOUR cells must depict the requested state. Do not include the seated input image as the first cell. Never touch or crop any tail, nose, ear or paw at a cell boundary.",
+  "referenceSHA256": "e7a5e9f7ae6d7b64bc4238c5bb74459265073559ef85d113ace834c7afd1668e",
+  "requestId": "7bceffc8-1561-9d5d-9258-3c72e302f6c4",
+  "usage": {
+    "height": 512,
+    "image_count": 1,
+    "width": 3072
+  },
+  "frames": 4,
+  "canvas": [
+    3072,
+    512
+  ],
+  "sha256": "62219b2c72a01bddf6cb4ab2a4acc7569a0a46fcc6390c23912c62ffb382843b"
+}

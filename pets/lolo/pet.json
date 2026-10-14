@@ -1,0 +1,61 @@
+{
+  "name": "洛洛",
+  "breed": "金色寻回猎犬",
+  "frameSize": [
+    192,
+    192
+  ],
+  "scale": 1,
+  "pixelArt": false,
+  "playful": true,
+  "states": {
+    "idle": {
+      "file": "idle.png",
+      "frames": 4,
+      "fps": 3,
+      "loop": true
+    },
+    "walk": {
+      "file": "walk.png",
+      "frames": 4,
+      "fps": 5,
+      "loop": true
+    },
+    "run": {
+      "file": "run.png",
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "sit": {
+      "file": "sit.png",
+      "frames": 4,
+      "fps": 2,
+      "loop": true
+    },
+    "sleep": {
+      "file": "sleep.png",
+      "frames": 3,
+      "fps": 1.5,
+      "loop": true
+    },
+    "drag": {
+      "file": "drag.png",
+      "frames": 4,
+      "fps": 3,
+      "loop": true
+    },
+    "fall": {
+      "file": "fall.png",
+      "frames": 3,
+      "fps": 4,
+      "loop": true
+    },
+    "happy": {
+      "file": "happy.png",
+      "frames": 4,
+      "fps": 4,
+      "loop": false
+    }
+  }
+}

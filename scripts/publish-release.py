@@ -54,7 +54,7 @@ except urllib.error.HTTPError as error:
     if error.code != 404:
         raise RuntimeError("GitHub Release读取失败，HTTP " + str(error.code)) from None
     release = api(base + "/releases", "POST", {"tag_name": TAG, "target_commitish": head, "name": "桌面小伙伴 1.1.0",
-        "draft": True, "body": "小布、阿金和糯米可独立选择、调节大小，新增可调高度及透明度的桌面背景。修复字体裁切、拖动、糯米各动作体型与贴地。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+        "draft": True, "body": "小布、糯米和现代金毛洛洛可独立选择、调节大小，像素阿金也保留。新增可调高度及透明度的桌面背景，修复字体裁切、拖动、各动作体型与贴地。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
 asset = next((a for a in release["assets"] if a["name"] == "DeskPets.zip"), None)
 digest = "sha256:" + hashlib.sha256(package.read_bytes()).hexdigest()
 if asset is not None:
@@ -75,7 +75,7 @@ if release["draft"]:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"draft": False})
 if args.replace_same_version:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"body":
-        "小布、阿金和糯米可独立选择、调节大小，新增可调高度及透明度的桌面背景。修复字体裁切、拖动、糯米各动作体型与贴地。三只新的100%统一采用上一轮150%的体型。\n\n同版本修正继续使用1.1.0。本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+        "小布、糯米和现代金毛洛洛可独立选择、调节大小，像素阿金也保留。新增可调高度及透明度的桌面背景，修复字体裁切、拖动、各动作体型与贴地。三只原有动物的新100%统一采用上一轮150%的体型；洛洛按同一基准校准，具有八种状态、30帧动作。\n\n本轮继续使用1.1.0。本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
 else:
     release = api(base + "/releases/" + str(release["id"]))
 asset = next(a for a in release["assets"] if a["name"] == "DeskPets.zip")

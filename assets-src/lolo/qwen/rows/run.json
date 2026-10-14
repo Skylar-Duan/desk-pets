@@ -1,0 +1,18 @@
+{
+  "state": "run",
+  "model": "qwen-image-2.1-pro",
+  "prompt": "Input image is the identity reference for Lolo, one adult Golden Retriever. Preserve the exact face, ears, fur colors, muzzle, proportions and soft modern character rendering. Create exactly FOUR equally sized square cells in a single horizontal row, one complete pose in each cell. Each cell is 512x512 pixels; total canvas 2048x512. Maintain identical camera scale across all four frames AND across animation states: dog head at the same size; seated reference full dog height about 400 pixels in a cell. Do not enlarge sleeping or shrink moving poses to fill their cells. All paws, ears and tail inside each cell with 20 pixel safety padding. Genuinely transparent alpha background, no floor, no cast shadow, no colored background, no painted checkerboard, no text, no labels, no grid lines, no watermarks. The four dogs remain separated by transparent margins, never overlap neighboring cells. Stable soft diffuse lighting. Animation instruction: Four sequential frames of a cheerful gentle running cycle in exact side profile moving toward screen RIGHT: nose points right and tail extends left. Four anatomically correct legs in varied stride phases, clear silhouettes, no extra paws, no body growth, no jumping or vertical displacement, at least one paw at ground baseline in each frame. Head size unchanged.",
+  "referenceSHA256": "e7a5e9f7ae6d7b64bc4238c5bb74459265073559ef85d113ace834c7afd1668e",
+  "requestId": "deed6a72-55f3-9459-9f53-a07343affac4",
+  "usage": {
+    "height": 512,
+    "image_count": 1,
+    "width": 2048
+  },
+  "frames": 4,
+  "canvas": [
+    2048,
+    512
+  ],
+  "sha256": "97262b2b1e81d1ae8e2b575a1e24350b629c2568fb68d3d4dc6dc5805837a37b"
+}

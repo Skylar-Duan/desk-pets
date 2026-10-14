@@ -1,0 +1,8 @@
+{
+  "name": "洛洛",
+  "useCase": "stylized-concept",
+  "prompt": "Create one isolated full-body adult Golden Retriever named Lolo, a modern desktop companion character. Contemporary soft premium 3D collectible toy aesthetic, softly sculpted realistic fluffy fur, warm honey-golden coat, slightly paler cream muzzle and chest, long floppy feathered ears, kind dark-brown eyes, black nose, recognizable adult Golden Retriever muzzle, friendly calm expression, mouth closed. Natural canine proportions with only a mild toy stylization, not a tiny puppy and not an oversized chibi head. Seated upright in a relaxed front three-quarter pose, front paws both planted, hind paws anatomically plausible, one long fluffy curved tail visible at the side. Complete ears, paws and tail visible. Soft diffuse studio lighting, stable orthographic-ish camera, no exaggerated perspective, crisp silhouette readable at small desktop size. Character occupies roughly 75 percent of a square image, generous clear padding around every edge. Actual transparent background with alpha, no painted checkerboard, no floor, no cast shadow, no text, no props, no collar, no clothes, no border, no watermark. Single dog only. Exactly four anatomically correct limbs, one tail, two ears. Warm, lovable, quietly attentive companion, same level of polished toy realism as a premium ragdoll-cat desktop pet.",
+  "qwenModel": "qwen-image-2.1-pro",
+  "size": "1024*1024",
+  "notes": "角色基准候选；后续八种状态保持相同头身尺度，100%体型与已统一150%基准的三只协调。不得把概念图当作已完成动画发布。"
+}

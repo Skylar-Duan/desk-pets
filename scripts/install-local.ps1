@@ -58,7 +58,7 @@ try {
         $shortcut.TargetPath = $installedExe
         $shortcut.WorkingDirectory = $Destination
         $shortcut.IconLocation = "$installedExe,0"
-        $shortcut.Description = '小布、阿金陪伴桌面；查看我的小伙伴'
+        $shortcut.Description = '小布、糯米、洛洛陪伴桌面；选择我的小伙伴'
         $shortcut.Save()
     }
     Start-Process -FilePath $installedExe

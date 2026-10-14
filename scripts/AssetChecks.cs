@@ -18,9 +18,16 @@ static class AssetChecks
         {
             string root = args[0];
             List<PetDef> defs = PetDef.LoadAll(Path.Combine(root, "pets"));
-            Require(defs.Count == 3, "应加载小布、阿金、糯米共三只");
+            int manifests = 0;
+            foreach (string folder in Directory.GetDirectories(Path.Combine(root, "pets")))
+                if (File.Exists(Path.Combine(folder, "pet.json"))) manifests++;
+            Require(defs.Count >= 4 && defs.Count == manifests, "应完整加载小布、阿金、糯米、洛洛及新增宠物");
+            Require(defs.Exists(delegate(PetDef def) { return def.Id == "ragdoll"; }) &&
+                defs.Exists(delegate(PetDef def) { return def.Id == "golden"; }), "原始像素动物未保留");
             PetDef nuomi = defs.Find(delegate(PetDef def) { return def.Id == "nuomi"; });
             Require(nuomi != null && !nuomi.PixelArt && !nuomi.Playful, "糯米应使用现代画风与猫的行为");
+            PetDef lolo = defs.Find(delegate(PetDef def) { return def.Id == "lolo"; });
+            Require(lolo != null && !lolo.PixelArt && lolo.Playful && lolo.Breed == "金色寻回猎犬", "洛洛应使用现代金毛的素材与行为");
             foreach (PetDef def in defs)
             {
                 Require(def.SpriteH <= 288 && def.SpriteW <= 288, "基础宠物窗口过大");
@@ -56,13 +63,14 @@ static class AssetChecks
             }
             Require(nuomi.States["sleep"].Right.Length == 4, "未装入新睡眠动作");
             Require(nuomi.States["drag"].Right.Length == 2 && nuomi.States["fall"].Right.Length == 2, "未装入空中动作");
+            foreach (PetDef subject in new PetDef[] { nuomi, lolo })
             foreach (int size in new int[] { 50, 100, 200 })
             {
-                nuomi.SetSize(size);
-                PetBrain brain = new PetBrain(nuomi, false);
+                subject.SetSize(size);
+                PetBrain brain = new PetBrain(subject, subject.Playful);
                 System.Drawing.Rectangle area = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea;
                 brain.X = area.Left + area.Width / 2;
-                brain.Y = area.Bottom - nuomi.SpriteH;
+                brain.Y = area.Bottom - subject.SpriteH;
                 EnvInfo environment = new EnvInfo { Dt = 1.0 / 30, IdleSeconds = 0 };
                 brain.BeginDrag();
                 brain.DragTo(brain.X, area.Top + 80);
@@ -72,10 +80,11 @@ static class AssetChecks
                 for (int tick = 0; tick < 600 && brain.State == PetState.Fall; tick++) brain.Tick(environment);
                 Require(brain.State != PetState.Fall && brain.State != PetState.Drag, "抛落后未回到地面");
                 Bitmap frame = brain.CurrentFrame();
-                Require(Math.Abs(brain.Y + nuomi.SpriteH - area.Bottom) < 1, "落地后脚底锚点错误");
-                Require(brain.Y + nuomi.GroundPadding(frame) <= area.Bottom, "落地绘制位置错误");
+                Require(Math.Abs(brain.Y + subject.SpriteH - area.Bottom) < 1, "落地后脚底锚点错误");
+                Require(brain.Y + subject.GroundPadding(frame) <= area.Bottom, "落地绘制位置错误");
             }
             nuomi.SetSize(100);
+            lolo.SetSize(100);
             if (args.Length > 2)
                 using (PetDef previous = PetDef.Load(args[2]))
                 {
@@ -95,7 +104,7 @@ static class AssetChecks
             if (args.Length > 1)
             {
                 Directory.CreateDirectory(args[1]);
-                using (Bitmap comparison = new Bitmap(480, 800))
+                using (Bitmap comparison = new Bitmap(224 * defs.Count, 1280))
                 using (Graphics graphics = Graphics.FromImage(comparison))
                 using (Font font = new Font("Microsoft YaHei UI", 12, GraphicsUnit.Pixel))
                 {
@@ -103,14 +112,14 @@ static class AssetChecks
                     string[] compareStates = { "idle", "walk", "sleep", "drag" };
                     for (int row = 0; row < compareStates.Length; row++)
                     {
-                        graphics.DrawLine(Pens.DarkSeaGreen, 0, row * 200 + 180, 480, row * 200 + 180);
+                        graphics.DrawLine(Pens.DarkSeaGreen, 0, row * 320 + 300, comparison.Width, row * 320 + 300);
                         for (int column = 0; column < defs.Count; column++)
                         {
                             PetDef def = defs[column];
                             Bitmap frame = def.States[compareStates[row]].Right[0];
-                            graphics.DrawString(def.Name + " 100% · " + compareStates[row], font, Brushes.Black, column * 160 + 4, row * 200 + 4);
-                            graphics.DrawImageUnscaled(frame, column * 160 + (160 - frame.Width) / 2,
-                                row * 200 + 181 - frame.Height + def.GroundPadding(frame));
+                            graphics.DrawString(def.Name + " 100% · " + compareStates[row], font, Brushes.Black, column * 224 + 4, row * 320 + 4);
+                            graphics.DrawImageUnscaled(frame, column * 224 + (224 - frame.Width) / 2,
+                                row * 320 + 301 - frame.Height + def.GroundPadding(frame));
                         }
                     }
                     comparison.Save(Path.Combine(args[1], "pets-100-percent.png"), System.Drawing.Imaging.ImageFormat.Png);
@@ -163,7 +172,7 @@ static class AssetChecks
                     "互动模式不能关闭点击穿透");
             }
             Require(!new UserSettings().ClickThrough, "新用户默认应可以拖动宠物");
-            Console.WriteLine("PASS: 3 pets at 50/100/150/200%, all state/direction ground anchors, denser backgrounds, native interaction flags.");
+            Console.WriteLine("PASS: 4 pets at 50/100/150/200%, all state/direction ground anchors, denser backgrounds, native interaction flags.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }

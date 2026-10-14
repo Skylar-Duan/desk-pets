@@ -35,7 +35,7 @@ namespace DeskPets
             BackColor = Color.FromArgb(248, 245, 240);
             StartPosition = FormStartPosition.CenterScreen;
             Rectangle area = Screen.PrimaryScreen.WorkingArea;
-            ClientSize = new Size(Math.Min(Px(860), area.Width - Px(30)), Math.Min(Px(700), area.Height - Px(70)));
+            ClientSize = new Size(Math.Min(Px(defs.Count > 3 ? 1040 : 860), area.Width - Px(30)), Math.Min(Px(700), area.Height - Px(70)));
             MinimumSize = new Size(Math.Min(Px(740), area.Width), Math.Min(Px(560), area.Height));
 
             TableLayoutPanel layout = new TableLayoutPanel();
@@ -181,7 +181,7 @@ namespace DeskPets
             preview.AccessibleName = def.Name + "动画预览";
             card.Controls.Add(preview); previews.Add(preview);
             card.Controls.Add(Label(def.Name, UiFont(19, FontStyle.Bold)));
-            string type = def.Id == "golden" ? "金毛 · 像素风" : def.Id == "nuomi" ? "布偶猫 · 现代玩具风" : "布偶猫 · 像素风";
+            string type = def.Breed + " · " + (def.PixelArt ? "像素风" : def.Id == "nuomi" ? "现代玩具风" : "现代风");
             Label category = Label(type, Font); category.ForeColor = muted;
             card.Controls.Add(category);
             CheckBox selected = new CheckBox();

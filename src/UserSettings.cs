@@ -7,10 +7,10 @@ namespace DeskPets
 {
     public sealed class UserSettings
     {
-        public string[] SelectedPets = new string[] { "ragdoll", "golden", "nuomi" };
+        public string[] SelectedPets = new string[] { "ragdoll", "lolo", "nuomi" };
         public bool Visible = true;
         public bool ClickThrough = false;
-        public int SettingsVersion = 4;
+        public int SettingsVersion = 5;
         public Dictionary<string, int> PetSizes = new Dictionary<string, int>();
         public string Background = "none";
         public int BackgroundHeight = 96;
@@ -47,7 +47,12 @@ namespace DeskPets
                                 if (settings.PetSizes.TryGetValue(id, out priorSize) && priorSize == 150)
                                     settings.PetSizes[id] = 100;
                             }
-                        settings.SettingsVersion = 4;
+                        if (priorVersion < 5 && settings.IsSelected("golden"))
+                        {
+                            settings.Select("golden", false);
+                            settings.Select("lolo", true);
+                        }
+                        settings.SettingsVersion = 5;
                         settings.BackgroundHeight = Math.Max(32, Math.Min(160, settings.BackgroundHeight));
                         settings.BackgroundTransparency = Math.Max(0, Math.Min(100, settings.BackgroundTransparency));
                         return settings;

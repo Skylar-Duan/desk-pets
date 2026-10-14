@@ -2,8 +2,8 @@
 (function () {
   "use strict";
 
-  var PETS = ["ragdoll", "golden", "nuomi"];
-  var ASSET_REV = "20261014-150-desktop-r4";
+  var PETS = ["ragdoll", "golden", "nuomi", "lolo"];
+  var ASSET_REV = "20261014-150-lolo-r5";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var playground = document.getElementById("playground");
 
@@ -33,6 +33,7 @@
 
     this.el = document.createElement("div");
     this.el.className = "pet";
+    this.el.dataset.pet = def.id;
     this.el.classList.add(def.pixelArt === false ? "modern" : "pixel");
     this.el.setAttribute("aria-label", def.name + "，可拖动");
     this.el.style.width = this.w + "px";
@@ -261,13 +262,18 @@
       var now = performance.now();
       var dt = Math.min((now - last) / 1000, 0.1);
       last = now;
-      pets.forEach(function (p) { if (reducedMotion && !p.dragging && p.state !== "fall") p.render(); else p.tick(dt); });
+      var enabled = pets.filter(function(p){return !p.el.hidden;});
+      enabled.forEach(function (p,i) {
+        p.buddy = enabled.length > 1 ? enabled[(i+1)%enabled.length] : null;
+        if (reducedMotion && !p.dragging && p.state !== "fall") p.render(); else p.tick(dt);
+      });
     }, 33);
     defs.forEach(buildGallery);
     var selectors = document.getElementById("pet-selectors");
     pets.forEach(function(p) {
       var group = document.createElement("label");
-      var check = document.createElement("input"); check.type = "checkbox"; check.checked = true;
+      var check = document.createElement("input"); check.type = "checkbox"; check.checked = p.def.id !== "golden";
+      p.el.hidden = !check.checked;
       check.setAttribute("aria-label", "展示" + p.def.name);
       check.addEventListener("change", function() { p.el.hidden = !check.checked; });
       group.appendChild(check); group.appendChild(document.createTextNode(" " + p.def.name + " "));
