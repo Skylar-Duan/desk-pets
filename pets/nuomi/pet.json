@@ -5,6 +5,7 @@
     128
   ],
   "scale": 1,
+  "baseSizePercent": 120,
   "pixelArt": false,
   "playful": false,
   "facing": "right",

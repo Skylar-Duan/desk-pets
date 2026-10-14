@@ -35,7 +35,7 @@ build.bat
 `pets/<id>/` 一个文件夹 = 一只宠物：
 
 - `pet.json`：`name` / `frameSize [w,h]` / `scale` / `states{ 状态: {file, frames, fps, loop} }`
-- 可选 `pixelArt` / `playful`；状态可带 `leftFile` 保留独立左向步态、`poseScale`（0.25–1）校准跨动作体型。基础单格宽高不超过192像素，再按用户选择的50–200%缩放
+- 可选 `pixelArt` / `playful` / `baseSizePercent`（默认100，发布时校准整体体型）；状态可带 `leftFile` 保留独立左向步态、`poseScale`（0.25–1）校准跨动作体型。100%基础窗口宽高不超过192像素，再按用户选择的50–200%缩放
 - 每个状态一条横向帧条 PNG（透明底，帧等宽）
 - 状态集：`idle walk run sit sleep drag fall happy`；缺的状态自动按回退链补
   （walk→idle，run→walk，sit→idle，sleep→sit，fall/drag 互补，happy→idle）
@@ -43,6 +43,8 @@ build.bat
 
 像素素材由 `assets-src/gen_pets.py` 生成。糯米由已验收v2素材加新睡眠、提起、下落姿态组成；生成来源和可复现裁切入口见 `assets-src/nuomi/desktop-source/`，运行皮肤在 `pets/nuomi/`。
 以后把真猫真狗数字化：照片 → 逐状态画帧条（AI 生成 + 手修，或委托像素画师）→ 落同规范文件夹即可。
+
+**宠物发布体型验收（用户2026-10-14指定）**：新宠物在100%时必须与小布、阿金及已校准糯米的可见体型协调；以同一桌面比例并排比较正常站姿/坐姿，结合头部大小和身体体量，不能按透明格子尺寸判断，也不能依赖用户额外调到120%才协调。保留角色自然身形差异；八种动作、左右方向应保持同一只动物的头身尺度，睡姿只改变姿势。发布前检查100%并排总览、全状态体型与贴地、50–200%缩放和拖动抛落。糯米当前100%已采用原120%的基准。
 
 ## 网页预览（web/）
 

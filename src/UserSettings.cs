@@ -10,7 +10,7 @@ namespace DeskPets
         public string[] SelectedPets = new string[] { "ragdoll", "golden", "nuomi" };
         public bool Visible = true;
         public bool ClickThrough = false;
-        public int SettingsVersion = 2;
+        public int SettingsVersion = 3;
         public Dictionary<string, int> PetSizes = new Dictionary<string, int>();
         public string Background = "none";
         public int BackgroundHeight = 96;
@@ -35,8 +35,12 @@ namespace DeskPets
                     {
                         if (settings.SelectedPets == null) settings.SelectedPets = new string[0];
                         if (!stored.ContainsKey("SettingsVersion")) settings.ClickThrough = false;
-                        settings.SettingsVersion = 2;
                         if (settings.PetSizes == null) settings.PetSizes = new Dictionary<string, int>();
+                        int priorVersion = stored.ContainsKey("SettingsVersion") ? Convert.ToInt32(stored["SettingsVersion"]) : 1;
+                        int nuomiSize;
+                        if (priorVersion < 3 && settings.PetSizes.TryGetValue("nuomi", out nuomiSize) && nuomiSize == 120)
+                            settings.PetSizes["nuomi"] = 100;
+                        settings.SettingsVersion = 3;
                         settings.BackgroundHeight = Math.Max(32, Math.Min(160, settings.BackgroundHeight));
                         settings.BackgroundTransparency = Math.Max(0, Math.Min(100, settings.BackgroundTransparency));
                         return settings;

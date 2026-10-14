@@ -76,9 +76,45 @@ static class AssetChecks
                 Require(brain.Y + nuomi.GroundPadding(frame) <= area.Bottom, "落地绘制位置错误");
             }
             nuomi.SetSize(100);
+            if (args.Length > 2)
+                using (PetDef previous = PetDef.Load(args[2]))
+                {
+                    previous.SetSize(120);
+                    Require(previous.SpriteW == nuomi.SpriteW && previous.SpriteH == nuomi.SpriteH, "新100%不等于原120%");
+                    foreach (string state in PetDef.RequiredStates)
+                        for (int direction = 0; direction < 2; direction++)
+                        {
+                            Bitmap[] before = direction == 0 ? previous.States[state].Right : previous.States[state].Left;
+                            Bitmap[] after = direction == 0 ? nuomi.States[state].Right : nuomi.States[state].Left;
+                            for (int i = 0; i < before.Length; i++)
+                                for (int y = 0; y < before[i].Height; y++)
+                                    for (int x = 0; x < before[i].Width; x++)
+                                        Require(before[i].GetPixel(x, y) == after[i].GetPixel(x, y), "新旧基准像素不一致：" + state);
+                        }
+                }
             if (args.Length > 1)
             {
                 Directory.CreateDirectory(args[1]);
+                using (Bitmap comparison = new Bitmap(480, 800))
+                using (Graphics graphics = Graphics.FromImage(comparison))
+                using (Font font = new Font("Microsoft YaHei UI", 12, GraphicsUnit.Pixel))
+                {
+                    graphics.Clear(Color.FromArgb(244, 240, 234));
+                    string[] compareStates = { "idle", "walk", "sleep", "drag" };
+                    for (int row = 0; row < compareStates.Length; row++)
+                    {
+                        graphics.DrawLine(Pens.DarkSeaGreen, 0, row * 200 + 180, 480, row * 200 + 180);
+                        for (int column = 0; column < defs.Count; column++)
+                        {
+                            PetDef def = defs[column];
+                            Bitmap frame = def.States[compareStates[row]].Right[0];
+                            graphics.DrawString(def.Name + " 100% · " + compareStates[row], font, Brushes.Black, column * 160 + 4, row * 200 + 4);
+                            graphics.DrawImageUnscaled(frame, column * 160 + (160 - frame.Width) / 2,
+                                row * 200 + 181 - frame.Height + def.GroundPadding(frame));
+                        }
+                    }
+                    comparison.Save(Path.Combine(args[1], "pets-100-percent.png"), System.Drawing.Imaging.ImageFormat.Png);
+                }
                 using (Bitmap sheet = new Bitmap(8 * nuomi.SpriteW, 16 * (nuomi.SpriteH + 24)))
                 using (Graphics graphics = Graphics.FromImage(sheet))
                 using (Font font = new Font("Segoe UI", 11, GraphicsUnit.Pixel))

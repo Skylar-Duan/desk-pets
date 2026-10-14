@@ -30,14 +30,15 @@ namespace DeskPets
         public int FrameW;
         public int FrameH;
         public int Scale;
+        public int BaseSizePercent = 100;
         public bool PixelArt = true;
         public bool Playful;
         public Dictionary<string, StateAnim> States = new Dictionary<string, StateAnim>();
         readonly Dictionary<Bitmap, int> groundPadding = new Dictionary<Bitmap, int>();
         public int DisplayPercent = 100;
 
-        public int SpriteW { get { return Math.Max(1, (int)Math.Round(FrameW * Scale * DisplayPercent / 100.0)); } }
-        public int SpriteH { get { return Math.Max(1, (int)Math.Round(FrameH * Scale * DisplayPercent / 100.0)); } }
+        public int SpriteW { get { return Math.Max(1, (int)Math.Round(Math.Round(FrameW * Scale * BaseSizePercent / 100.0) * DisplayPercent / 100.0)); } }
+        public int SpriteH { get { return Math.Max(1, (int)Math.Round(Math.Round(FrameH * Scale * BaseSizePercent / 100.0) * DisplayPercent / 100.0)); } }
 
         static readonly string[,] FallbackChain = new string[,]
         {
@@ -67,12 +68,15 @@ namespace DeskPets
             def.FrameW = Convert.ToInt32(fs[0]);
             def.FrameH = Convert.ToInt32(fs[1]);
             def.Scale = root.ContainsKey("scale") ? Convert.ToInt32(root["scale"]) : 3;
+            def.BaseSizePercent = root.ContainsKey("baseSizePercent") ? Convert.ToInt32(root["baseSizePercent"]) : 100;
             def.PixelArt = !root.ContainsKey("pixelArt") || Convert.ToBoolean(root["pixelArt"]);
             def.Playful = root.ContainsKey("playful") ? Convert.ToBoolean(root["playful"]) : def.Id == "golden";
             if (def.Scale < 1) def.Scale = 1;
             if (def.Scale > 8) def.Scale = 8;
             if (def.FrameW < 1 || def.FrameH < 1 || def.FrameW * def.Scale > 192 || def.FrameH * def.Scale > 192)
                 throw new InvalidDataException("宠物大小超出桌面限制");
+            if (def.BaseSizePercent < 25 || def.BaseSizePercent > 200 || def.SpriteW > 192 || def.SpriteH > 192)
+                throw new InvalidDataException("宠物默认体型超出桌面限制");
 
             Dictionary<string, object> states = (Dictionary<string, object>)root["states"];
             foreach (KeyValuePair<string, object> kv in states)
@@ -122,6 +126,15 @@ namespace DeskPets
                 if (!def.States.ContainsKey(s))
                     def.States[s] = def.States["idle"];
 
+            if (def.BaseSizePercent != 100)
+                foreach (StateAnim animation in new HashSet<StateAnim>(def.States.Values))
+                {
+                    Bitmap[] right = def.ResizeFrames(animation.Right), left = def.ResizeFrames(animation.Left);
+                    foreach (Bitmap bitmap in animation.Right) bitmap.Dispose();
+                    foreach (Bitmap bitmap in animation.Left) bitmap.Dispose();
+                    animation.Right = right;
+                    animation.Left = left;
+                }
             def.SetSize(100);
             return def;
         }

@@ -8,6 +8,15 @@ if (-not (Test-Path -LiteralPath $exe)) { throw '请先运行 build.bat' }
 $actualVersion = (Get-Item -LiteralPath $exe).VersionInfo.FileVersion
 if ($actualVersion -ne "$Version.0") { throw "版本不符：$actualVersion" }
 if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'pets\nuomi\pet.json'))) { throw '糯米桌面皮肤尚未准备好' }
+$qaRoot = Join-Path $projectRoot '_work\qa'
+New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
+Push-Location $projectRoot
+try {
+    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe "/out:$qaRoot\AssetChecks.exe" /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Web.Extensions.dll scripts\AssetChecks.cs src\PetDef.cs src\PetWindow.cs src\NativeMethods.cs src\Backdrop.cs src\UserSettings.cs src\PetBrain.cs
+    if ($LASTEXITCODE -ne 0) { throw '发布验收检查编译失败' }
+    & (Join-Path $qaRoot 'AssetChecks.exe') $projectRoot (Join-Path $projectRoot '_work\nuomi-desktop-qa')
+    if ($LASTEXITCODE -ne 0) { throw '宠物体型、状态或贴地检查失败，停止打包' }
+} finally { Pop-Location }
 New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
 Copy-Item -LiteralPath $exe -Destination (Join-Path $packageRoot 'DeskPets.exe') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot '使用说明.txt') -Destination $packageRoot -Force
