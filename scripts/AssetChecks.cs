@@ -23,7 +23,7 @@ static class AssetChecks
             Require(nuomi != null && !nuomi.PixelArt && !nuomi.Playful, "糯米应使用现代画风与猫的行为");
             foreach (PetDef def in defs)
             {
-                Require(def.SpriteH <= 192 && def.SpriteW <= 192, "宠物窗口过大");
+                Require(def.SpriteH <= 192 && def.SpriteW <= 192, "基础宠物窗口过大");
                 foreach (string state in PetDef.RequiredStates)
                 {
                     Require(def.States.ContainsKey(state), "缺状态 " + state);
@@ -32,9 +32,71 @@ static class AssetChecks
                     foreach (Bitmap image in animation.Right)
                         Require(image.Width == def.SpriteW && image.Height == def.SpriteH, "单格尺寸不一致");
                 }
+                foreach (int size in new int[] { 50, 100, 150, 200, 100 })
+                {
+                    def.SetSize(size);
+                    foreach (StateAnim animation in def.States.Values)
+                        foreach (Bitmap[] frames in new Bitmap[][] { animation.Right, animation.Left })
+                            foreach (Bitmap frame in frames)
+                            {
+                                Require(frame.Size == new Size(def.SpriteW, def.SpriteH), "缩放后的动作尺寸不一致");
+                                if (def.PixelArt) continue;
+                                int bottom = frame.Height - 1;
+                                for (; bottom >= 0; bottom--)
+                                {
+                                    bool visible = false;
+                                    for (int x = 0; x < frame.Width; x++)
+                                        if (frame.GetPixel(x, bottom).A >= 16) { visible = true; break; }
+                                    if (visible) break;
+                                }
+                                Require(bottom + 1 + def.GroundPadding(frame) == def.SpriteH,
+                                    "某动作或某大小的脚底无法贴地");
+                            }
+                }
             }
             Require(nuomi.States["sleep"].Right.Length == 4, "未装入新睡眠动作");
             Require(nuomi.States["drag"].Right.Length == 2 && nuomi.States["fall"].Right.Length == 2, "未装入空中动作");
+            foreach (int size in new int[] { 50, 100, 200 })
+            {
+                nuomi.SetSize(size);
+                PetBrain brain = new PetBrain(nuomi, false);
+                System.Drawing.Rectangle area = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea;
+                brain.X = area.Left + area.Width / 2;
+                brain.Y = area.Bottom - nuomi.SpriteH;
+                EnvInfo environment = new EnvInfo { Dt = 1.0 / 30, IdleSeconds = 0 };
+                brain.BeginDrag();
+                brain.DragTo(brain.X, area.Top + 80);
+                Require(brain.State == PetState.Drag, "拖动状态丢失");
+                brain.EndDrag(300, 0, false);
+                Require(brain.State == PetState.Fall, "松手后未进入下落");
+                for (int tick = 0; tick < 600 && brain.State == PetState.Fall; tick++) brain.Tick(environment);
+                Require(brain.State != PetState.Fall && brain.State != PetState.Drag, "抛落后未回到地面");
+                Bitmap frame = brain.CurrentFrame();
+                Require(Math.Abs(brain.Y + nuomi.SpriteH - area.Bottom) < 1, "落地后脚底锚点错误");
+                Require(brain.Y + nuomi.GroundPadding(frame) <= area.Bottom, "落地绘制位置错误");
+            }
+            nuomi.SetSize(100);
+            if (args.Length > 1)
+            {
+                Directory.CreateDirectory(args[1]);
+                using (Bitmap sheet = new Bitmap(8 * nuomi.SpriteW, 16 * (nuomi.SpriteH + 24)))
+                using (Graphics graphics = Graphics.FromImage(sheet))
+                using (Font font = new Font("Segoe UI", 11, GraphicsUnit.Pixel))
+                {
+                    graphics.Clear(Color.FromArgb(244, 240, 234));
+                    int row = 0;
+                    foreach (string state in PetDef.RequiredStates)
+                        foreach (Bitmap[] frames in new Bitmap[][] { nuomi.States[state].Right, nuomi.States[state].Left })
+                        {
+                            int top = row++ * (nuomi.SpriteH + 24);
+                            graphics.DrawString(state + (row % 2 == 1 ? " right" : " left"), font, Brushes.Black, 4, top + 4);
+                            graphics.DrawLine(Pens.DarkSeaGreen, 0, top + 23 + nuomi.SpriteH, sheet.Width, top + 23 + nuomi.SpriteH);
+                            for (int i = 0; i < frames.Length; i++)
+                                graphics.DrawImageUnscaled(frames[i], i * nuomi.SpriteW, top + 24 + nuomi.GroundPadding(frames[i]));
+                        }
+                    sheet.Save(Path.Combine(args[1], "runtime-all-states.png"), System.Drawing.Imaging.ImageFormat.Png);
+                }
+            }
             var scenes = SceneDef.LoadAll(Path.Combine(root, "backgrounds"));
             Require(scenes.Count == 3, "背景素材数量不符");
             foreach (SceneDef scene in scenes)
@@ -46,10 +108,11 @@ static class AssetChecks
                         for (int x = 0; x < image.Width; x++)
                         {
                             if (image.GetPixel(x, y).A == 0) continue;
-                            Require(y >= 48, "背景元素侵入高处：" + scene.Id);
+                            Require(y >= 4, "背景缺少顶部留白：" + scene.Id);
                             visible++;
                         }
-                    Require(visible > 0 && visible < image.Width * image.Height / 3, "背景应大部分留空：" + scene.Id);
+                    Require(visible > image.Width * image.Height / 4 && visible < image.Width * image.Height * 3 / 4,
+                        "背景密度应可见且保留留白：" + scene.Id);
                 }
             }
             using (PetWindow window = new PetWindow())
@@ -63,7 +126,8 @@ static class AssetChecks
                 Require((NativeMethods.GetExtendedStyle(window.Handle) & NativeMethods.WS_EX_TRANSPARENT) == 0,
                     "互动模式不能关闭点击穿透");
             }
-            Console.WriteLine("PASS: 3 pets, all runtime states, directional frames, 3 sparse low backgrounds, native click-through/no-activation flags.");
+            Require(!new UserSettings().ClickThrough, "新用户默认应可以拖动宠物");
+            Console.WriteLine("PASS: 3 pets at 50/100/150/200%, all state/direction ground anchors, denser backgrounds, native interaction flags.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }

@@ -9,9 +9,11 @@ namespace DeskPets
     {
         public string[] SelectedPets = new string[] { "ragdoll", "golden", "nuomi" };
         public bool Visible = true;
-        public bool ClickThrough = true;
+        public bool ClickThrough = false;
+        public int SettingsVersion = 2;
+        public Dictionary<string, int> PetSizes = new Dictionary<string, int>();
         public string Background = "none";
-        public int BackgroundHeight = 48;
+        public int BackgroundHeight = 96;
         public int BackgroundTransparency = 75;
 
         public static string FilePath
@@ -25,11 +27,17 @@ namespace DeskPets
             {
                 if (File.Exists(FilePath))
                 {
-                    UserSettings settings = new JavaScriptSerializer().Deserialize<UserSettings>(File.ReadAllText(FilePath));
+                    string json = File.ReadAllText(FilePath);
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    UserSettings settings = serializer.Deserialize<UserSettings>(json);
+                    var stored = (Dictionary<string, object>)serializer.DeserializeObject(json);
                     if (settings != null)
                     {
                         if (settings.SelectedPets == null) settings.SelectedPets = new string[0];
-                        settings.BackgroundHeight = Math.Max(32, Math.Min(96, settings.BackgroundHeight));
+                        if (!stored.ContainsKey("SettingsVersion")) settings.ClickThrough = false;
+                        settings.SettingsVersion = 2;
+                        if (settings.PetSizes == null) settings.PetSizes = new Dictionary<string, int>();
+                        settings.BackgroundHeight = Math.Max(32, Math.Min(160, settings.BackgroundHeight));
                         settings.BackgroundTransparency = Math.Max(0, Math.Min(100, settings.BackgroundTransparency));
                         return settings;
                     }
@@ -40,6 +48,12 @@ namespace DeskPets
         }
 
         public bool IsSelected(string id) { return Array.IndexOf(SelectedPets, id) >= 0; }
+
+        public int SizeFor(string id)
+        {
+            int value;
+            return PetSizes.TryGetValue(id, out value) ? Math.Max(50, Math.Min(200, value)) : 100;
+        }
 
         public void Select(string id, bool enabled)
         {

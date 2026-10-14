@@ -101,6 +101,9 @@ manifest = {'name': '糯米', 'frameSize': list(SIZE), 'scale': 1,
 for name, (frames, fps, loop) in states.items():
     strip(name, frames)
     entry = {'file': name + '.png', 'frames': len(frames), 'fps': fps, 'loop': loop}
+    # 原图行之间的体型不同；桌面加载时按头部尺度校准，再应用用户的整体大小。
+    entry['poseScale'] = {'idle': .70, 'sit': .70, 'sleep': .85,
+                          'drag': .78, 'fall': .78, 'happy': .70}.get(name, 1.0)
     if name in ('walk', 'run'):
         strip(name + '-left', left)
         entry['leftFile'] = name + '-left.png'

@@ -37,6 +37,7 @@ namespace DeskPets
             for (int i = 0; i < defs.Count; i++)
             {
                 PetDef def = defs[i];
+                def.SetSize(settings.SizeFor(def.Id));
                 PetBrain brain = new PetBrain(def, def.Playful);
                 double frac = defs.Count == 1 ? 0.5 : 0.25 + 0.5 * i / (defs.Count - 1);
                 brain.X = wa.Left + (wa.Width - def.SpriteW) * frac;
@@ -67,6 +68,7 @@ namespace DeskPets
                 if (e.Button != MouseButtons.Left) return;
                 Point cur = Cursor.Position;
                 item.Dragging = true;
+                item.Window.Capture = true;
                 item.Moved = false;
                 item.DownPos = cur;
                 item.DownTime = clock.Elapsed.TotalSeconds;
@@ -90,6 +92,7 @@ namespace DeskPets
             {
                 if (e.Button != MouseButtons.Left || !item.Dragging) return;
                 item.Dragging = false;
+                item.Window.Capture = false;
                 double now = clock.Elapsed.TotalSeconds;
                 bool isClick = !item.Moved && (now - item.DownTime) < 0.4;
                 double vxOut = 0, vyOut = 0;
@@ -110,6 +113,12 @@ namespace DeskPets
                     }
                 }
                 item.Brain.EndDrag(vxOut, vyOut, isClick);
+            };
+            item.Window.MouseCaptureChanged += delegate
+            {
+                if (!item.Dragging || item.Window.Capture) return;
+                item.Dragging = false;
+                item.Brain.EndDrag(0, 0, false);
             };
         }
 
@@ -134,7 +143,8 @@ namespace DeskPets
             {
                 PetItem it = items[i];
                 if (!it.Enabled) continue;
-                it.Window.Render(it.Brain.CurrentFrame(), (int)it.Brain.X, (int)it.Brain.Y);
+                Bitmap frame = it.Brain.CurrentFrame();
+                it.Window.Render(frame, (int)it.Brain.X, (int)it.Brain.Y + it.Brain.Def.GroundPadding(frame));
             }
         }
 
@@ -173,6 +183,21 @@ namespace DeskPets
             foreach (PetItem item in items) item.Window.ClickThrough = value;
         }
 
+        public void SetSize(string id, int percent)
+        {
+            foreach (PetItem item in items)
+            {
+                PetDef def = item.Brain.Def;
+                if (def.Id != id || def.DisplayPercent == percent) continue;
+                double foot = item.Brain.Y + def.SpriteH;
+                double center = item.Brain.CenterX;
+                def.SetSize(percent);
+                item.Brain.X = center - def.SpriteW / 2.0;
+                item.Brain.Y = foot - def.SpriteH;
+                item.Window.InvalidateCache();
+            }
+        }
+
         public void RaisePets()
         {
             foreach (PetItem item in items)
@@ -185,6 +210,7 @@ namespace DeskPets
         {
             if (timer != null) { timer.Stop(); timer.Dispose(); }
             foreach (PetItem it in items) it.Window.Dispose();
+            foreach (PetItem it in items) it.Brain.Def.Dispose();
             items.Clear();
         }
     }

@@ -15,13 +15,15 @@ namespace DeskPets
         public Bitmap[] Left;
         public double Fps;
         public bool Loop;
+        public Bitmap[] BaseRight;
+        public Bitmap[] BaseLeft;
     }
 
     /// <summary>
     /// 一只宠物的完整定义，由 pets/&lt;id&gt;/pet.json 驱动。
     /// 素材可整目录替换，代码只认 manifest；缺失状态按回退链补齐。
     /// </summary>
-    public class PetDef
+    public class PetDef : IDisposable
     {
         public string Id;
         public string Name;
@@ -31,9 +33,11 @@ namespace DeskPets
         public bool PixelArt = true;
         public bool Playful;
         public Dictionary<string, StateAnim> States = new Dictionary<string, StateAnim>();
+        readonly Dictionary<Bitmap, int> groundPadding = new Dictionary<Bitmap, int>();
+        public int DisplayPercent = 100;
 
-        public int SpriteW { get { return FrameW * Scale; } }
-        public int SpriteH { get { return FrameH * Scale; } }
+        public int SpriteW { get { return Math.Max(1, (int)Math.Round(FrameW * Scale * DisplayPercent / 100.0)); } }
+        public int SpriteH { get { return Math.Max(1, (int)Math.Round(FrameH * Scale * DisplayPercent / 100.0)); } }
 
         static readonly string[,] FallbackChain = new string[,]
         {
@@ -80,13 +84,16 @@ namespace DeskPets
                 if (double.IsNaN(fps) || double.IsInfinity(fps) || fps <= 0) fps = 6.0;
                 if (fps > 60) fps = 60;
                 bool loop = st.ContainsKey("loop") ? Convert.ToBoolean(st["loop"]) : true;
+                double poseScale = st.ContainsKey("poseScale") ? Convert.ToDouble(st["poseScale"]) : 1.0;
+                if (double.IsNaN(poseScale) || double.IsInfinity(poseScale) || poseScale < 0.25 || poseScale > 1)
+                    throw new InvalidDataException("动作体型比例超出范围：" + kv.Key);
                 string pngPath = Path.Combine(dir, file);
                 if (!File.Exists(pngPath) || frames < 1) continue;
-                def.States[kv.Key] = LoadStrip(pngPath, frames, def.FrameW, def.FrameH, def.Scale, fps, loop);
+                def.States[kv.Key] = LoadStrip(pngPath, frames, def.FrameW, def.FrameH, def.Scale, fps, loop, poseScale, def.PixelArt);
                 if (st.ContainsKey("leftFile"))
                 {
                     StateAnim left = LoadStrip(Path.Combine(dir, (string)st["leftFile"]), frames,
-                        def.FrameW, def.FrameH, def.Scale, fps, loop);
+                        def.FrameW, def.FrameH, def.Scale, fps, loop, poseScale, def.PixelArt);
                     foreach (Bitmap previous in def.States[kv.Key].Left) previous.Dispose();
                     foreach (Bitmap extra in left.Left) extra.Dispose();
                     def.States[kv.Key].Left = left.Right;
@@ -115,10 +122,88 @@ namespace DeskPets
                 if (!def.States.ContainsKey(s))
                     def.States[s] = def.States["idle"];
 
+            def.SetSize(100);
             return def;
         }
 
-        static StateAnim LoadStrip(string path, int frames, int fw, int fh, int scale, double fps, bool loop)
+        public void SetSize(int percent)
+        {
+            percent = Math.Max(50, Math.Min(200, percent));
+            if (percent == DisplayPercent && groundPadding.Count > 0) return;
+            DisplayPercent = percent;
+            groundPadding.Clear();
+            HashSet<StateAnim> animations = new HashSet<StateAnim>(States.Values);
+            foreach (StateAnim animation in animations)
+            {
+                if (animation.BaseRight == null)
+                {
+                    animation.BaseRight = animation.Right;
+                    animation.BaseLeft = animation.Left;
+                }
+                else if (!ReferenceEquals(animation.Right, animation.BaseRight))
+                {
+                    foreach (Bitmap bitmap in animation.Right) bitmap.Dispose();
+                    foreach (Bitmap bitmap in animation.Left) bitmap.Dispose();
+                }
+                animation.Right = percent == 100 ? animation.BaseRight : ResizeFrames(animation.BaseRight);
+                animation.Left = percent == 100 ? animation.BaseLeft : ResizeFrames(animation.BaseLeft);
+                foreach (Bitmap bitmap in animation.Right) RegisterGround(bitmap);
+                foreach (Bitmap bitmap in animation.Left) RegisterGround(bitmap);
+            }
+        }
+
+        Bitmap[] ResizeFrames(Bitmap[] source)
+        {
+            Bitmap[] images = new Bitmap[source.Length];
+            for (int i = 0; i < source.Length; i++)
+            {
+                Bitmap image = new Bitmap(SpriteW, SpriteH, PixelFormat.Format32bppArgb);
+                using (Graphics graphics = Graphics.FromImage(image))
+                {
+                    graphics.InterpolationMode = PixelArt ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
+                    graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                    graphics.DrawImage(source[i], new Rectangle(0, 0, SpriteW, SpriteH));
+                }
+                images[i] = image;
+            }
+            return images;
+        }
+
+        void RegisterGround(Bitmap image)
+        {
+            int padding = 0;
+            if (!PixelArt)
+            {
+                int bottom = image.Height - 1;
+                for (; bottom >= 0; bottom--)
+                {
+                    bool visible = false;
+                    for (int x = 0; x < image.Width; x++)
+                        if (image.GetPixel(x, bottom).A >= 16) { visible = true; break; }
+                    if (visible) break;
+                }
+                padding = Math.Max(0, image.Height - 1 - bottom);
+            }
+            groundPadding[image] = padding;
+        }
+
+        public int GroundPadding(Bitmap image)
+        {
+            int padding;
+            return groundPadding.TryGetValue(image, out padding) ? padding : 0;
+        }
+
+        public void Dispose()
+        {
+            HashSet<Bitmap> images = new HashSet<Bitmap>();
+            foreach (StateAnim animation in States.Values)
+                foreach (Bitmap[] frames in new Bitmap[][] { animation.Right, animation.Left, animation.BaseRight, animation.BaseLeft })
+                    if (frames != null) foreach (Bitmap image in frames) images.Add(image);
+            foreach (Bitmap image in images) image.Dispose();
+        }
+
+        static StateAnim LoadStrip(string path, int frames, int fw, int fh, int scale, double fps, bool loop, double poseScale, bool pixelArt)
         {
             StateAnim anim = new StateAnim();
             anim.Fps = fps;
@@ -132,7 +217,7 @@ namespace DeskPets
                 for (int i = 0; i < frames; i++)
                 {
                     Rectangle crop = new Rectangle(i * fw, 0, fw, fh);
-                    Bitmap right = ScaleFrame(strip, crop, scale);
+                    Bitmap right = ScaleFrame(strip, crop, scale, poseScale, pixelArt);
                     Bitmap left = (Bitmap)right.Clone();
                     left.RotateFlip(RotateFlipType.RotateNoneFlipX);
                     anim.Right[i] = right;
@@ -142,15 +227,17 @@ namespace DeskPets
             return anim;
         }
 
-        static Bitmap ScaleFrame(Bitmap src, Rectangle crop, int scale)
+        static Bitmap ScaleFrame(Bitmap src, Rectangle crop, int scale, double poseScale, bool pixelArt)
         {
             Bitmap dst = new Bitmap(crop.Width * scale, crop.Height * scale, PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(dst))
             {
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.InterpolationMode = pixelArt ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
                 g.PixelOffsetMode = PixelOffsetMode.Half;
                 g.CompositingQuality = CompositingQuality.HighSpeed;
-                g.DrawImage(src, new Rectangle(0, 0, dst.Width, dst.Height), crop, GraphicsUnit.Pixel);
+                int width = Math.Max(1, (int)Math.Round(dst.Width * poseScale));
+                int height = Math.Max(1, (int)Math.Round(dst.Height * poseScale));
+                g.DrawImage(src, new Rectangle((dst.Width - width) / 2, dst.Height - height, width, height), crop, GraphicsUnit.Pixel);
             }
             return dst;
         }

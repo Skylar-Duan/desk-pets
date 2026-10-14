@@ -35,7 +35,7 @@ namespace DeskPets
             BackColor = Color.FromArgb(248, 245, 240);
             StartPosition = FormStartPosition.CenterScreen;
             Rectangle area = Screen.PrimaryScreen.WorkingArea;
-            ClientSize = new Size(Math.Min(Px(860), area.Width - Px(30)), Math.Min(Px(640), area.Height - Px(70)));
+            ClientSize = new Size(Math.Min(Px(860), area.Width - Px(30)), Math.Min(Px(700), area.Height - Px(70)));
             MinimumSize = new Size(Math.Min(Px(740), area.Width), Math.Min(Px(560), area.Height));
 
             TableLayoutPanel layout = new TableLayoutPanel();
@@ -81,9 +81,9 @@ namespace DeskPets
                 if (((SceneDef)themes.Items[i]).Id == settings.Background) themes.SelectedIndex = i;
             themes.SelectedIndexChanged += delegate { settings.Background = ((SceneDef)themes.SelectedItem).Id; changed(); };
             grid.Controls.Add(themes, 1, 0);
-            grid.Controls.Add(Label("高度（像素）", Font), 2, 0);
+            grid.Controls.Add(Label("背景高度", Font), 2, 0);
             NumericUpDown height = new NumericUpDown();
-            height.Minimum = 32; height.Maximum = 96; height.Increment = 8;
+            height.Minimum = 32; height.Maximum = 160; height.Increment = 8;
             height.Value = settings.BackgroundHeight; height.Width = Px(80);
             height.ValueChanged += delegate { settings.BackgroundHeight = (int)height.Value; changed(); };
             grid.Controls.Add(height, 3, 0);
@@ -106,11 +106,11 @@ namespace DeskPets
 
             CheckBox passthrough = new CheckBox();
             passthrough.AutoSize = true;
-            passthrough.Text = "鼠标穿透，不挡桌面点击（关闭后可摸摸、拖动宠物）";
+            passthrough.Text = "暂时禁用摸摸和拖动（宠物也完全穿透鼠标）";
             passthrough.Checked = settings.ClickThrough;
             passthrough.CheckedChanged += delegate { settings.ClickThrough = passthrough.Checked; changed(); };
             grid.Controls.Add(passthrough, 0, 2); grid.SetColumnSpan(passthrough, 4);
-            Label backgroundTip = Label("背景始终穿透鼠标，最高96像素；默认不开启。", Font);
+            Label backgroundTip = Label("宠物默认可拖，透明区域穿透；背景随屏幕放大，最多占底部20%，始终穿透。", Font);
             backgroundTip.ForeColor = muted;
             grid.Controls.Add(backgroundTip, 0, 3); grid.SetColumnSpan(backgroundTip, 4);
             foreach (Control control in grid.Controls) control.Margin = new Padding(Px(6));
@@ -192,6 +192,23 @@ namespace DeskPets
             selected.Margin = new Padding(0, Px(4), 0, Px(6));
             selected.CheckedChanged += delegate { settings.Select(def.Id, selected.Checked); changed(); RefreshState(); };
             card.Controls.Add(selected);
+            FlowLayoutPanel sizeRow = new FlowLayoutPanel();
+            sizeRow.AutoSize = true;
+            sizeRow.WrapContents = false;
+            sizeRow.Margin = new Padding(0, Px(3), 0, Px(7));
+            Label sizeTitle = Label("桌面大小", Font);
+            sizeTitle.Margin = new Padding(0, Px(4), Px(6), 0);
+            sizeRow.Controls.Add(sizeTitle);
+            NumericUpDown size = new NumericUpDown();
+            size.Minimum = 50; size.Maximum = 200; size.Increment = 25;
+            size.Value = settings.SizeFor(def.Id); size.Width = Px(78);
+            size.AccessibleName = def.Name + "大小";
+            size.ValueChanged += delegate { settings.PetSizes[def.Id] = (int)size.Value; changed(); };
+            sizeRow.Controls.Add(size);
+            Label percent = Label("%", Font);
+            percent.Margin = new Padding(Px(4), Px(4), 0, 0);
+            sizeRow.Controls.Add(percent);
+            card.Controls.Add(sizeRow);
             Label status = Label("", Font); status.ForeColor = Color.FromArgb(66, 123, 89);
             card.Controls.Add(status); statusLabels[def.Id] = status;
             return card;
@@ -225,7 +242,8 @@ namespace DeskPets
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Bitmap frame = animation.Right[(int)(clock.Elapsed.TotalSeconds * animation.Fps) % animation.Right.Length];
+            Bitmap[] frames = animation.BaseRight ?? animation.Right;
+            Bitmap frame = frames[(int)(clock.Elapsed.TotalSeconds * animation.Fps) % frames.Length];
             double scale = Math.Min((Width - 16.0) / frame.Width, (Height - 12.0) / frame.Height);
             if (pixel) scale = Math.Max(1, Math.Floor(scale));
             int w = (int)(frame.Width * scale), h = (int)(frame.Height * scale);

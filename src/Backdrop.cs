@@ -90,10 +90,13 @@ namespace DeskPets
                 foreach (Screen screen in Screen.AllScreens)
                 {
                     Rectangle area = screen.WorkingArea;
-                    int height = Math.Max(1, Math.Min(Math.Min(96, settings.BackgroundHeight), area.Height / 12));
                     PetWindow window = new PetWindow();
                     window.Text = "桌宠背景 · " + scene.Name;
                     window.ClickThrough = true;
+                    window.Location = new Point(area.Left + 20, area.Top + 20);
+                    float screenScale;
+                    using (Graphics graphics = Graphics.FromHwnd(window.Handle)) screenScale = graphics.DpiY / 96F;
+                    int height = Math.Max(1, Math.Min((int)Math.Round(settings.BackgroundHeight * screenScale), area.Height / 5));
                     windows.Add(window);
                     images.Add(scene.Render(area.Width, height));
                     areas.Add(new Rectangle(area.Left, area.Bottom - height, area.Width, height));

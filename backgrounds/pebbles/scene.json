@@ -1,14 +1,15 @@
 {
   "name": "暖砂石滩",
   "elements": [
-    {"type":"ellipse","x":5,"y":84,"w":125,"h":20,"color":"#E5D8BF"},
-    {"type":"ellipse","x":245,"y":86,"w":137,"h":20,"color":"#DCCDB4"},
-    {"type":"ellipse","x":45,"y":67,"w":42,"h":26,"color":"#BAAA94"},
-    {"type":"ellipse","x":52,"y":69,"w":18,"h":6,"color":"#DBCCB8"},
-    {"type":"ellipse","x":93,"y":80,"w":27,"h":14,"color":"#D2C4AF"},
-    {"type":"ellipse","x":266,"y":73,"w":38,"h":22,"color":"#C4B69F"},
-    {"type":"ellipse","x":319,"y":82,"w":20,"h":12,"color":"#E8DDCC"},
-    {"type":"blade","x":183,"y":67,"w":7,"h":25,"color":"#A6AF94"},
-    {"type":"blade","x":189,"y":75,"w":8,"h":18,"color":"#BCC5A8"}
+    {"type":"rect","x":0,"y":88,"w":384,"h":8,"color":"#ECE1CD"},
+    {"type":"ellipse","x":0,"y":66,"w":168,"h":44,"color":"#E5D8BF"},
+    {"type":"ellipse","x":207,"y":66,"w":180,"h":43,"color":"#DCCDB4"},
+    {"type":"ellipse","x":36,"y":37,"w":62,"h":55,"color":"#BAAA94"},
+    {"type":"ellipse","x":47,"y":40,"w":30,"h":13,"color":"#DBCCB8"},
+    {"type":"ellipse","x":105,"y":64,"w":40,"h":29,"color":"#D2C4AF"},
+    {"type":"ellipse","x":256,"y":49,"w":56,"h":44,"color":"#C4B69F"},
+    {"type":"ellipse","x":324,"y":68,"w":33,"h":26,"color":"#E8DDCC"},
+    {"type":"blade","x":179,"y":20,"w":12,"h":73,"color":"#A6AF94"},
+    {"type":"blade","x":192,"y":38,"w":14,"h":55,"color":"#BCC5A8"}
   ]
 }

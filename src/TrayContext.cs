@@ -85,6 +85,8 @@ namespace DeskPets
                 }
             };
             signalTimer.Start();
+            settingsDirty = true;
+            changedAt = DateTime.UtcNow;
             if (showGallery) ShowGallery();
         }
 
@@ -109,7 +111,11 @@ namespace DeskPets
 
         void SettingsChanged()
         {
-            foreach (PetDef def in definitions) manager.Select(def.Id, settings.IsSelected(def.Id));
+            foreach (PetDef def in definitions)
+            {
+                manager.SetSize(def.Id, settings.SizeFor(def.Id));
+                manager.Select(def.Id, settings.IsSelected(def.Id));
+            }
             manager.SetClickThrough(settings.ClickThrough);
             if (manager.PetsVisible != settings.Visible) manager.ToggleVisible();
             backdrop.Apply(settings, scenes);
