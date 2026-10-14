@@ -23,7 +23,7 @@ static class AssetChecks
             Require(nuomi != null && !nuomi.PixelArt && !nuomi.Playful, "糯米应使用现代画风与猫的行为");
             foreach (PetDef def in defs)
             {
-                Require(def.SpriteH <= 192 && def.SpriteW <= 192, "基础宠物窗口过大");
+                Require(def.SpriteH <= 288 && def.SpriteW <= 288, "基础宠物窗口过大");
                 foreach (string state in PetDef.RequiredStates)
                 {
                     Require(def.States.ContainsKey(state), "缺状态 " + state);

@@ -5,6 +5,7 @@
     26
   ],
   "scale": 3,
+  "baseSizePercent": 150,
   "facing": "right",
   "states": {
     "idle": {

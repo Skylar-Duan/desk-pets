@@ -75,7 +75,7 @@ namespace DeskPets
             if (def.Scale > 8) def.Scale = 8;
             if (def.FrameW < 1 || def.FrameH < 1 || def.FrameW * def.Scale > 192 || def.FrameH * def.Scale > 192)
                 throw new InvalidDataException("宠物大小超出桌面限制");
-            if (def.BaseSizePercent < 25 || def.BaseSizePercent > 200 || def.SpriteW > 192 || def.SpriteH > 192)
+            if (def.BaseSizePercent < 25 || def.BaseSizePercent > 200 || def.SpriteW > 288 || def.SpriteH > 288)
                 throw new InvalidDataException("宠物默认体型超出桌面限制");
 
             Dictionary<string, object> states = (Dictionary<string, object>)root["states"];

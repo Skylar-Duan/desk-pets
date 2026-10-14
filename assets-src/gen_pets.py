@@ -503,6 +503,7 @@ def emit(pet):
         "name": name,
         "frameSize": [w, h],
         "scale": 3,
+        "baseSizePercent": 150,
         "facing": "right",
         "states": {},
     }

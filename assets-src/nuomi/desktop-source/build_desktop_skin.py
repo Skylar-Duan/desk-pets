@@ -96,7 +96,7 @@ def strip(name, frames):
     temporary.replace(path)
 
 
-manifest = {'name': '糯米', 'frameSize': list(SIZE), 'scale': 1, 'baseSizePercent': 120,
+manifest = {'name': '糯米', 'frameSize': list(SIZE), 'scale': 1, 'baseSizePercent': 180,
             'pixelArt': False, 'playful': False, 'facing': 'right', 'states': {}}
 for name, (frames, fps, loop) in states.items():
     strip(name, frames)

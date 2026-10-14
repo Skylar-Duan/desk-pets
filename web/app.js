@@ -3,11 +3,12 @@
   "use strict";
 
   var PETS = ["ragdoll", "golden", "nuomi"];
+  var ASSET_REV = "20261014-150-desktop-r4";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var playground = document.getElementById("playground");
 
   function loadPet(id) {
-    return fetch("assets/" + id + "/pet.json")
+    return fetch("assets/" + id + "/pet.json?v=" + ASSET_REV)
       .then(function (r) { return r.json(); })
       .then(function (def) { def.id = id; return def; });
   }
@@ -45,7 +46,7 @@
   }
 
   WebPet.prototype.groundY = function () {
-    return playground.clientHeight - this.h - 12;
+    return playground.clientHeight - this.h - 34;
   };
 
   WebPet.prototype.anim = function () {
@@ -148,7 +149,7 @@
     var fw = this.def.frameSize[0], fh = this.def.frameSize[1];
     this.el.style.transform = "translate(" + Math.round(this.x) + "px," + Math.round(this.y) + "px)";
     this.inner.style.transform = this.facing < 0 && !st.leftFile ? "scaleX(-1)" : "";
-    this.inner.style.backgroundImage = "url(assets/" + this.def.id + "/" + (this.facing < 0 && st.leftFile ? st.leftFile : st.file) + ")";
+    this.inner.style.backgroundImage = "url(assets/" + this.def.id + "/" + (this.facing < 0 && st.leftFile ? st.leftFile : st.file) + "?v=" + ASSET_REV + ")";
     this.inner.style.backgroundSize = (fw * n * this.scale) + "px " + (fh * this.scale) + "px";
     this.inner.style.backgroundPosition = (-idx * fw * this.scale) + "px 0";
   };
@@ -228,7 +229,7 @@
       var fw = def.frameSize[0], fh = def.frameSize[1];
       a.style.width = fw * scale + "px";
       a.style.height = fh * scale + "px";
-      a.style.backgroundImage = "url(assets/" + def.id + "/" + st.file + ")";
+      a.style.backgroundImage = "url(assets/" + def.id + "/" + st.file + "?v=" + ASSET_REV + ")";
       a.style.backgroundSize = (fw * st.frames * scale) + "px " + (fh * scale) + "px";
       var label = document.createElement("div");
       label.className = "label";
