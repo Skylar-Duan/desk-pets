@@ -1,0 +1,15 @@
+{
+  "name": "苔绿小径",
+  "elements": [
+    {"type":"rect","x":0,"y":90,"w":384,"h":6,"color":"#CDD9C6"},
+    {"type":"ellipse","x":6,"y":65,"w":165,"h":40,"color":"#A2B7A0"},
+    {"type":"ellipse","x":218,"y":66,"w":170,"h":40,"color":"#BDD0B4"},
+    {"type":"blade","x":40,"y":18,"w":16,"h":74,"color":"#738D79"},
+    {"type":"blade","x":55,"y":35,"w":18,"h":57,"color":"#9BB89A"},
+    {"type":"blade","x":99,"y":50,"w":14,"h":41,"color":"#88A688"},
+    {"type":"blade","x":291,"y":8,"w":15,"h":84,"color":"#829C83"},
+    {"type":"blade","x":307,"y":28,"w":18,"h":64,"color":"#A4BFA0"},
+    {"type":"ellipse","x":174,"y":78,"w":32,"h":16,"color":"#CECAB8"},
+    {"type":"ellipse","x":208,"y":83,"w":24,"h":11,"color":"#E3DDCA"}
+  ]
+}

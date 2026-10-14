@@ -1,45 +1,46 @@
-:root {
-  --bg: #f6f2ea;
-  --ink: #45392f;
-  --accent: #e2a85c;
-  --accent2: #5b8fd9;
-  --card: #ffffff;
-  --ground: #e8dfd0;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #211c17; --ink: #f2e9dc; --card: #2c2620; --ground: #2f2822; }
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: "Microsoft YaHei", system-ui, sans-serif;
-  line-height: 1.7;
-}
-h1, h2, h3 { line-height: 1.3; }
+/* desk-pets · 只保留像素相关的样式
+ * ============================================================
+ * 通用外壳（配色、页眉、首屏、卡片、更新日志、留言板、页脚、响应式）全部来自
+ * /utilities/_shared/tool-page.css。这里只留这一页独有的东西：演示区、宠物精灵、
+ * 图鉴帧条 —— 也就是必须 image-rendering: pixelated 的那部分。
+ *
+ * 与 app.js 的约定（改动前先看 app.js）：
+ *   #playground          演示区容器，脚本往里塞 .pet
+ *   .pet / .pet-inner    脚本创建，靠 transform 定位、backgroundPosition 走帧
+ *   #gallery-<id> .strip 图鉴帧条容器，脚本往里塞 .cell > .anim + .label
+ *
+ * 视觉适配（Skylar 2026-08-03 拍板，02 转达）：配色跟主站走，但**像素游戏的质感
+ * 保留** —— 演示区仍是硬边框、不加圆角模糊。抹平它等于让页面「像主站」的同时
+ * 不再是桌宠。
+ */
 
-.hero { text-align: center; padding: 56px 16px 12px; }
-.hero h1 { font-size: 2.4rem; letter-spacing: 2px; }
-.px-badge {
-  display: inline-block; font-size: 0.8rem; vertical-align: middle;
-  background: var(--accent2); color: #fff; padding: 2px 8px; margin-right: 10px;
-  border-radius: 2px; letter-spacing: 3px;
-  box-shadow: 3px 3px 0 rgba(0,0,0,.15);
+.try-hint {
+  color: var(--brand-ink);
+  font-size: 14px;
+  margin-bottom: 12px;
 }
-.tagline { margin-top: 12px; opacity: .85; }
-.try-hint { margin-top: 20px; font-size: .95rem; color: var(--accent2); }
+.try-hint b { color: var(--fg); font-weight: 600; }
 
-.playground-wrap { position: relative; max-width: 1000px; margin: 8px auto 0; }
+.demo-section { padding: 6px 0 8px; }
+
 .playground {
-  position: relative; height: 240px; overflow: hidden;
+  position: relative; height: 360px; overflow: hidden;
+  /* 方格纸：两道网格 + 底部一层压暗，给宠物一个「地面」的暗示 */
   background:
-    repeating-linear-gradient(0deg, transparent 0 15px, rgba(0,0,0,.025) 15px 16px),
-    repeating-linear-gradient(90deg, transparent 0 15px, rgba(0,0,0,.025) 15px 16px),
-    linear-gradient(180deg, transparent 60%, rgba(0,0,0,.05));
-  border: 2px solid var(--ink); border-radius: 8px;
-  touch-action: none;
+    repeating-linear-gradient(0deg,  transparent 0 15px, var(--grid) 15px 16px),
+    repeating-linear-gradient(90deg, transparent 0 15px, var(--grid) 15px 16px),
+    linear-gradient(180deg, transparent 60%, var(--ground-shade));
+  background-color: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  touch-action: none;   /* 触屏上拖宠物时不要滚页面 */
 }
-.ground-line { position: absolute; left: 2px; right: 2px; bottom: 10px; height: 2px; }
+/* 网格与压暗在两个主题下要分别调：深底上用亮网格，浅底上用暗网格。 */
+:root { --grid: rgba(0,0,0,.045); --ground-shade: rgba(0,0,0,.05); }
+@media (prefers-color-scheme: dark) {
+  :root { --grid: rgba(255,255,255,.05); --ground-shade: rgba(0,0,0,.35); }
+}
+
 .pet {
   position: absolute; left: 0; top: 0;
   cursor: grab; user-select: none;
@@ -47,44 +48,39 @@ h1, h2, h3 { line-height: 1.3; }
   will-change: transform;
 }
 .pet.grabbed { cursor: grabbing; }
-.pet-inner { width: 100%; height: 100%; image-rendering: pixelated; background-repeat: no-repeat; }
-
-.download { text-align: center; padding: 36px 16px 8px; }
-.dl-btn {
-  display: inline-block; background: var(--accent); color: #2a2018;
-  font-size: 1.15rem; font-weight: bold; text-decoration: none;
-  padding: 14px 34px; border: 2px solid var(--ink); border-radius: 6px;
-  box-shadow: 4px 4px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+.pet.modern, .modern .pet-inner, .strip .anim.modern { image-rendering: auto; }
+.pet { z-index: 1; }
+.demo-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; margin:12px 0; color:var(--fg); }
+.demo-controls label { display:flex; align-items:center; gap:6px; font-size:14px; }
+.demo-controls input[type="number"] { width:64px; padding:5px; }
+.demo-controls select { padding:6px; max-width:150px; }
+.demo-controls input[type="range"] { width:110px; }
+.demo-controls input, .demo-controls select { accent-color:var(--brand-ink); color:var(--fg); background-color:var(--panel); border:1px solid var(--line); border-radius:4px; }
+.demo-note { color:var(--fg2); font-size:13px; margin-top:10px; }
+.scene-layer { position:absolute; bottom:12px; left:0; width:100%; pointer-events:none; }
+.strip .cell { width:125px; min-height:180px; display:flex; flex-direction:column; justify-content:flex-end; }
+.strip .anim { flex-shrink:0; }
+.pet-inner {
+  width: 100%; height: 100%;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
 }
-.dl-btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
-.dl-note { margin-top: 14px; font-size: .88rem; opacity: .7; }
 
-.features {
-  max-width: 1000px; margin: 40px auto; padding: 0 16px;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+/* 图鉴 */
+.gallery-row { margin-bottom: 20px; }
+.gallery-row h3 { font-size: 15px; margin-bottom: 8px; }
+.strip { display: flex; flex-wrap: nowrap; gap: 14px; align-items: flex-end; overflow-x:auto; padding-bottom:12px; }
+.strip .cell { text-align: center; flex:0 0 125px; }
+.strip .anim {
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  margin: 0 auto;
 }
-.card {
-  background: var(--card); border: 2px solid var(--ink); border-radius: 8px;
-  padding: 18px 20px; box-shadow: 4px 4px 0 rgba(0,0,0,.12);
+.strip .cell .label {
+  font-size: 12px; color: var(--fg2); margin-top: 4px;
+  font-family: var(--mono);
 }
-.card h3 { margin-bottom: 6px; }
-.card p { font-size: .92rem; opacity: .9; }
 
-.gallery { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
-.gallery h2, .spec h2 { margin-bottom: 12px; }
-.gallery-row { margin-bottom: 18px; }
-.gallery-row h3 { font-size: 1rem; margin-bottom: 6px; }
-.strip { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
-.strip .cell { text-align: center; }
-.strip .cell .label { font-size: .75rem; opacity: .65; margin-top: 2px; }
-.strip .anim { image-rendering: pixelated; background-repeat: no-repeat; margin: 0 auto; }
-
-.spec { max-width: 1000px; margin: 32px auto 0; padding: 0 16px; }
-.spec pre {
-  background: var(--card); border: 2px solid var(--ink); border-radius: 8px;
-  padding: 14px 18px; overflow-x: auto; font-size: .85rem; margin: 10px 0;
+@media (max-width: 640px) {
+  .playground { height: 340px; }
 }
-.spec code { background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 3px; }
-
-footer { text-align: center; padding: 40px 16px 28px; font-size: .85rem; opacity: .6; }
-footer a { color: inherit; }

@@ -3,50 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>桌面小伙伴 desk-pets · 像素桌宠</title>
+<title>桌面小伙伴 · 小布、阿金和糯米 · cdpandas</title>
+<meta name="description" content="小布、阿金和糯米陪伴你的Windows桌面。独立选择动物、调节大小，摸摸或拖动；可选低矮透明背景。全离线、不抢焦点，本页可试玩三只宠物。">
+
+<!-- 统一模板：结构与样式见 /utilities/_shared/TEMPLATE.md
+     像素相关的样式（演示区、宠物精灵、图鉴）留在本目录 style.css，
+     因为只有这一页需要 image-rendering: pixelated 那一套。 -->
+<link rel="stylesheet" href="/utilities/_shared/tool-page.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div class="topbar">
+  <div class="wrap">
+    <a href="/utilities" class="home">← 工具集</a>
+    <a href="https://github.com/Skylar-Duan/desk-pets" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</div>
+
 <header class="hero">
-  <h1><span class="px-badge">PIXEL</span> 桌面小伙伴</h1>
-  <p class="tagline">一只布偶猫、一只金毛，住进你的 Windows 桌面。<br>
-  全离线 · 零依赖 · 整包 24KB · 不挡鼠标不抢焦点</p>
-  <p class="try-hint">↓ 下面就是真实效果 —— <b>点它摸摸头，按住拖起来甩出去试试</b> ↓</p>
+  <div class="wrap">
+    <div class="kicker">Windows 桌面应用 · 免费开源 · v1.1.0</div>
+    <h1>桌面小伙伴</h1>
+    <p class="lede">像素猫小布、金毛阿金，还有软乎乎的糯米。<br>
+    选喜欢的伙伴，留在桌面陪你工作。<br>
+    <b>全离线 · 大小可调 · 不抢焦点</b></p>
+    <div class="cta-row">
+      <a class="btn" href="https://github.com/Skylar-Duan/desk-pets/releases/download/v1.1.0/DeskPets.zip">↓ 下载 Windows 版 v1.1.0</a>
+      <span class="cta-note">解压 → 双击 DeskPets.exe · Windows 10/11 免安装</span>
+    </div>
+  </div>
 </header>
 
-<section class="playground-wrap">
-  <div id="playground" class="playground" aria-label="宠物互动演示区"></div>
-  <div class="ground-line"></div>
+<!-- 首屏的视觉主体就是可玩的演示区（相当于别的工具页那张应用图标）。
+     #playground / #gallery-* / .strip 这三处 id 与 class 是 app.js 直接依赖的，
+     改动前先看 app.js。 -->
+<section class="demo-section">
+  <div class="wrap">
+    <p class="try-hint"><b>点一下摸摸，按住拖起来，松手会落地。</b> 这里可试玩同一套桌面动作。</p>
+    <div id="pet-selectors" class="demo-controls" aria-label="选择演示宠物和大小"></div>
+    <div class="demo-controls scene-controls">
+      <label>背景 <select id="scene-choice"><option value="none">无背景</option><option value="garden">苔绿小径</option><option value="pebbles">暖砂石滩</option><option value="clouds">云朵小窝</option></select></label>
+      <label>背景高度 <input id="scene-height" type="range" min="32" max="160" value="96"></label>
+      <label>透明度 <input id="scene-transparency" type="range" min="0" max="100" value="75"><output id="scene-percent">75%</output></label>
+    </div>
+    <div id="playground" class="playground" aria-label="宠物互动演示区"><canvas id="scene-canvas" class="scene-layer" aria-hidden="true"></canvas></div>
+    <p class="demo-note">网页展示动画与拖动；桌面版还会按你的键鼠活跃度安排休息。演示设置仅影响此页。</p>
+  </div>
 </section>
 
-<section class="download">
-  <a id="dl-btn" class="dl-btn" href="https://github.com/Skylar-Duan/desk-pets/releases/latest/download/DeskPets.zip">
-    ⬇ 下载 Windows 版（24KB）
-  </a>
-  <p class="dl-note">解压 → 双击 DeskPets.exe 即可 · Windows 10/11 免安装零依赖<br>
-  首次运行如遇 SmartScreen 提示：更多信息 → 仍要运行（仅一次）</p>
+<!-- ① 功能介绍 -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>它是什么样的</h2>
+      <p>陪着你，但不打扰你。</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>选你喜欢的伙伴</h3>
+        <p>小布、阿金和糯米独立勾选，也能一起陪伴。关掉控制窗口，桌面上的伙伴继续运行；选择会自动记住。</p>
+      </div>
+      <div class="card">
+        <h3>懂你的节奏 <span class="tag">不记录内容</span></h3>
+        <p>你在打字它们就精神，你离开一会儿它们睡大觉。只读「距上次键鼠输入多少秒」这一个数字，<b>不记录任何按键内容</b>。</p>
+      </div>
+      <div class="card">
+        <h3>摸得着，扔得动</h3>
+        <p>点一下会开心回应；按住拖走，甩出去有抛物线和落地小弹跳。默认可以拖动，也能随时临时禁用互动。</p>
+      </div>
+      <div class="card">
+        <h3>工作优先</h3>
+        <p>身体之外的透明区域<b>点击穿透</b>，不进任务栏、不抢焦点。需要专心时，隐藏全部，或让宠物完全穿透鼠标。</p>
+      </div>
+      <div class="card">
+        <h3>每只大小独立调</h3>
+        <p>50%至200%随你调整，三只互不影响。100%默认体型协调，坐下、散步、睡觉也保持同一只动物的比例。</p>
+      </div>
+      <div class="card">
+        <h3>一点桌面风景</h3>
+        <p>三款背景可选，高度和透明度可调；最多占工作区底部20%，位于任务栏上方。背景始终穿透鼠标。</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="features">
-  <div class="card"><h3>🐾 活的，不是贴图</h3><p>散步、奔跑、坐着发呆、打盹；金毛还会时不时跑去找猫。每个动作 1–3 秒的克制循环，陪伴而不打扰。</p></div>
-  <div class="card"><h3>⌨️ 懂你的节奏</h3><p>你在打字它们就精神，你离开一会儿它们睡大觉。只读"距上次键鼠输入多少秒"这一个数字，不记录任何内容。</p></div>
-  <div class="card"><h3>🖱️ 摸得着，扔得动</h3><p>点一下摸摸头会开心冒爱心；按住拖走、甩出去有抛物线和落地小弹跳。</p></div>
-  <div class="card"><h3>👻 完全不碍事</h3><p>宠物身体之外的像素全部点击穿透；不进任务栏、不抢焦点，浮在所有窗口之上默默陪着。</p></div>
-  <div class="card"><h3>🪶 轻到离谱</h3><p>整包 24KB，内存约 30MB，CPU 约 3%。用 Windows 自带运行库，一个 exe 加一个素材文件夹，删掉即卸载。</p></div>
-  <div class="card"><h3>🎨 换装零门槛</h3><p>一个文件夹就是一只宠物：配置 JSON + 每个动作一条帧图。换素材不用改一行代码，未来支持上传自制皮肤。</p></div>
-</section>
+<!-- ② 展示 -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>全状态图鉴</h2>
+      <p>三只伙伴，八种状态。按相同100%基准展示，左右滑动查看全部动作。</p>
+    </div>
+    <div id="gallery-ragdoll" class="gallery-row"><h3>小布 · 布偶猫</h3><div class="strip"></div></div>
+    <div id="gallery-golden" class="gallery-row"><h3>阿金 · 金毛</h3><div class="strip"></div></div>
+    <div id="gallery-nuomi" class="gallery-row"><h3>糯米 · 现代玩具风布偶猫</h3><div class="strip"></div></div>
 
-<section class="gallery">
-  <h2>全状态图鉴</h2>
-  <div id="gallery-ragdoll" class="gallery-row"><h3>小布 · 布偶猫</h3><div class="strip"></div></div>
-  <div id="gallery-golden" class="gallery-row"><h3>阿金 · 金毛</h3><div class="strip"></div></div>
-</section>
-
-<section class="spec">
-  <h2>皮肤规范（自制换装）</h2>
-  <p><code>pets/&lt;名字&gt;/</code> 一个文件夹 = 一只宠物：每个状态一条<b>横向帧条 PNG</b>（透明底、帧等宽）+ 一个 <code>pet.json</code>：</p>
-  <pre>{
+    <div class="panel" style="margin-top:28px">
+      <h3>自己做一只（皮肤规范）</h3>
+      <p><code>pets/&lt;名字&gt;/</code> 一个文件夹 = 一只宠物：每个状态一条<b>横向帧条 PNG</b>（透明底、帧等宽），加一个 <code>pet.json</code>：</p>
+      <pre>{
   "name": "小布",
   "frameSize": [32, 24],
   "scale": 3,
@@ -56,13 +112,64 @@
     "sleep": { "file": "sleep.png", "frames": 2, "fps": 2,  "loop": true }
   }
 }</pre>
-  <p>状态全集 <code>idle / walk / run / sit / sleep / drag / fall / happy</code>；缺的状态自动回退（如没画 run 就用 walk）。把文件夹丢进 <code>pets/</code>，重启即生效。</p>
+      <p>状态全集 <code>idle / walk / run / sit / sleep / drag / fall / happy</code>。新增文件夹后重启，在控制窗口选择展示。完整素材与说明见GitHub；发布新皮肤前需要校准100%体型、各状态比例和脚底位置。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ③ 更新日志 -->
+<section>
+  <div class="wrap">
+    <div class="section-head"><h2>更新日志</h2></div>
+    <div class="releases">
+      <div class="rel">
+        <div class="meta"><div class="ver">v1.1.0</div><div class="date">2026-10-14</div></div>
+        <ul>
+          <li>加入糯米，三只宠物独立选择和调节大小，自动记住设置</li>
+          <li>新增三款可调高度、透明度的桌面背景</li>
+          <li>修复高屏幕缩放下的文字裁切、拖动和糯米各动作的体型及贴地位置</li>
+        </ul>
+      </div>
+      <div class="rel">
+        <div class="meta"><div class="ver">v1.0</div><div class="date">2026-08-03</div></div>
+        <ul>
+          <li>上线到 cdpandas 工具集，本页可直接试玩</li>
+          <li>两只宠物在屏幕底部游走、奔跑、坐卧、打盹；金毛会时不时跑去找猫</li>
+          <li><b>活跃度感知</b>：你在忙它们就精神，人离开几分钟就睡大觉</li>
+          <li>点一下摸摸头、按住可拖走、甩出去有抛物线和落地弹跳</li>
+          <li>身体之外的透明像素自动点击穿透；不进任务栏、不抢焦点、单实例</li>
+          <li>托盘图标：隐藏 / 召唤、开机自启开关（默认关）、退出</li>
+          <li>换装规范开放：一个文件夹一只宠物，不用改代码</li>
+        </ul>
+      </div>
+      <div class="rel">
+        <div class="meta"><div class="ver">计划中</div><div class="date">未排期</div></div>
+        <ul class="planned">
+          <li>活泼度设置、自然张望和现代版金色寻回猎犬</li>
+          <li>皮肤管理器：导入压缩包自动校验、预览、启用</li>
+          <li>网页版皮肤工坊：在线预览与上传自制皮肤</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ④ 留言板 -->
+<section>
+  <div class="wrap">
+    <div id="board" data-project="tool:desk-pets"></div>
+  </div>
 </section>
 
 <footer>
-  <p>desk-pets · <a href="https://github.com/Skylar-Duan/desk-pets">GitHub</a> · cdpandas.com 工具站</p>
+  <div class="wrap">
+    <div>desk-pets · 桌面小伙伴 · <a href="https://github.com/Skylar-Duan/desk-pets" target="_blank" rel="noopener">GitHub</a></div>
+    <div><a href="/utilities">← 回到工具集</a></div>
+  </div>
 </footer>
 
 <script src="app.js"></script>
+<script src="background.js"></script>
+<script src="/utilities/_shared/tool-board.js" defer></script>
 </body>
 </html>
