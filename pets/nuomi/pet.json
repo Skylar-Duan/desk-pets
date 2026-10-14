@@ -1,0 +1,63 @@
+{
+  "name": "糯米",
+  "frameSize": [
+    96,
+    128
+  ],
+  "scale": 1,
+  "pixelArt": false,
+  "playful": false,
+  "facing": "right",
+  "states": {
+    "idle": {
+      "file": "idle.png",
+      "frames": 6,
+      "fps": 5,
+      "loop": true
+    },
+    "walk": {
+      "file": "walk.png",
+      "frames": 8,
+      "fps": 4,
+      "loop": true,
+      "leftFile": "walk-left.png"
+    },
+    "run": {
+      "file": "run.png",
+      "frames": 8,
+      "fps": 8,
+      "loop": true,
+      "leftFile": "run-left.png"
+    },
+    "sit": {
+      "file": "sit.png",
+      "frames": 6,
+      "fps": 4,
+      "loop": true
+    },
+    "sleep": {
+      "file": "sleep.png",
+      "frames": 4,
+      "fps": 2,
+      "loop": true
+    },
+    "drag": {
+      "file": "drag.png",
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "fall": {
+      "file": "fall.png",
+      "frames": 2,
+      "fps": 4,
+      "loop": true
+    },
+    "happy": {
+      "file": "happy.png",
+      "frames": 4,
+      "fps": 4,
+      "loop": false
+    }
+  }
+}

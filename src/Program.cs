@@ -8,12 +8,24 @@ namespace DeskPets
     static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             bool createdNew;
             using (Mutex mutex = new Mutex(true, "DeskPets_SingleInstance", out createdNew))
             {
-                if (!createdNew) return;   // 已经在跑了
+                if (!createdNew)
+                {
+                    if (Array.IndexOf(args, "--background") >= 0) return;
+                    try
+                    {
+                        string eventName = Array.IndexOf(args, "--exit") >= 0 ? "DeskPets_Exit" : "DeskPets_ShowGallery";
+                        using (EventWaitHandle signal = EventWaitHandle.OpenExisting(eventName))
+                            signal.Set();
+                    }
+                    catch (WaitHandleCannotBeOpenedException) { }
+                    return;
+                }
+                if (Array.IndexOf(args, "--exit") >= 0) return;
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 // 消息循环内任何异常：记日志、一句人话、干净退出——绝不反复弹技术报错框
@@ -21,7 +33,11 @@ namespace DeskPets
                 Application.ThreadException += OnThreadException;
                 try
                 {
-                    Application.Run(new TrayContext());
+                    using (EventWaitHandle signal = new EventWaitHandle(false, EventResetMode.AutoReset,
+                        "DeskPets_ShowGallery"))
+                    using (EventWaitHandle exitSignal = new EventWaitHandle(false, EventResetMode.AutoReset,
+                        "DeskPets_Exit"))
+                        Application.Run(new TrayContext(signal, exitSignal, Array.IndexOf(args, "--background") < 0));
                 }
                 catch (InvalidOperationException)
                 {

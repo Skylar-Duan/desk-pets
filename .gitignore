@@ -2,3 +2,5 @@ DeskPets.exe
 _work/
 dist/
 *.zip
+__pycache__/
+*.pyc

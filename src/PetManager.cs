@@ -17,6 +17,7 @@ namespace DeskPets
             public PetWindow Window;
             public bool Dragging;
             public bool Moved;
+            public bool Enabled;
             public Point DownPos;
             public double DownTime;
             public int GrabDx, GrabDy;
@@ -29,25 +30,27 @@ namespace DeskPets
         double lastT;
         public bool PetsVisible { get; private set; }
 
-        public void Start(List<PetDef> defs)
+        public void Start(List<PetDef> defs, UserSettings settings)
         {
-            PetsVisible = true;
+            PetsVisible = settings.Visible;
             Rectangle wa = Screen.PrimaryScreen.WorkingArea;
             for (int i = 0; i < defs.Count; i++)
             {
                 PetDef def = defs[i];
-                // 狗（或第二只起）主动跑向同伴
-                PetBrain brain = new PetBrain(def, def.Id != "ragdoll" && i > 0 || def.Id == "golden");
+                PetBrain brain = new PetBrain(def, def.Playful);
                 double frac = defs.Count == 1 ? 0.5 : 0.25 + 0.5 * i / (defs.Count - 1);
                 brain.X = wa.Left + (wa.Width - def.SpriteW) * frac;
                 brain.Y = wa.Bottom - def.SpriteH;
 
                 PetWindow win = new PetWindow();
+                win.Text = "桌宠 · " + def.Name;
+                win.ClickThrough = settings.ClickThrough;
                 PetItem item = new PetItem();
                 item.Brain = brain;
                 item.Window = win;
+                item.Enabled = settings.IsSelected(def.Id);
                 WireMouse(item);
-                win.Show();
+                if (item.Enabled && PetsVisible) win.Show();
                 items.Add(item);
             }
             lastT = clock.Elapsed.TotalSeconds;
@@ -118,17 +121,19 @@ namespace DeskPets
             if (!PetsVisible) return;
 
             double idleSec = GetIdleSeconds();
-            for (int i = 0; i < items.Count; i++)
+            List<PetItem> enabledItems = items.FindAll(delegate(PetItem item) { return item.Enabled; });
+            for (int i = 0; i < enabledItems.Count; i++)
             {
                 EnvInfo env = new EnvInfo();
                 env.Dt = dt;
                 env.IdleSeconds = idleSec;
-                env.Buddy = items.Count > 1 ? items[(i + 1) % items.Count].Brain : null;
-                items[i].Brain.Tick(env);
+                env.Buddy = enabledItems.Count > 1 ? enabledItems[(i + 1) % enabledItems.Count].Brain : null;
+                enabledItems[i].Brain.Tick(env);
             }
             for (int i = 0; i < items.Count; i++)
             {
                 PetItem it = items[i];
+                if (!it.Enabled) continue;
                 it.Window.Render(it.Brain.CurrentFrame(), (int)it.Brain.X, (int)it.Brain.Y);
             }
         }
@@ -147,9 +152,33 @@ namespace DeskPets
             PetsVisible = !PetsVisible;
             foreach (PetItem it in items)
             {
-                it.Window.Visible = PetsVisible;
+                it.Window.Visible = PetsVisible && it.Enabled;
                 if (PetsVisible) it.Window.InvalidateCache();
             }
+        }
+
+        public void Select(string id, bool enabled)
+        {
+            foreach (PetItem item in items)
+            {
+                if (item.Brain.Def.Id != id) continue;
+                item.Enabled = enabled;
+                item.Window.Visible = enabled && PetsVisible;
+                item.Window.InvalidateCache();
+            }
+        }
+
+        public void SetClickThrough(bool value)
+        {
+            foreach (PetItem item in items) item.Window.ClickThrough = value;
+        }
+
+        public void RaisePets()
+        {
+            foreach (PetItem item in items)
+                if (item.Window.Visible)
+                    NativeMethods.SetWindowPos(item.Window.Handle, new IntPtr(-1), 0, 0, 0, 0,
+                        NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE);
         }
 
         public void Dispose()

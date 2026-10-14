@@ -1,0 +1,13 @@
+{
+  "name": "云朵小窝",
+  "elements": [
+    {"type":"ellipse","x":20,"y":74,"w":115,"h":29,"color":"#D3DEE7"},
+    {"type":"ellipse","x":31,"y":69,"w":42,"h":31,"color":"#E3E9EE"},
+    {"type":"ellipse","x":60,"y":57,"w":48,"h":42,"color":"#F0F3F5"},
+    {"type":"ellipse","x":97,"y":73,"w":44,"h":25,"color":"#E0E7EE"},
+    {"type":"ellipse","x":238,"y":80,"w":125,"h":27,"color":"#D4DDE8"},
+    {"type":"ellipse","x":251,"y":72,"w":46,"h":29,"color":"#E7EDF3"},
+    {"type":"ellipse","x":280,"y":62,"w":47,"h":39,"color":"#F1F3F6"},
+    {"type":"ellipse","x":315,"y":77,"w":49,"h":25,"color":"#E1E7EF"}
+  ]
+}

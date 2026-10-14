@@ -28,6 +28,8 @@ namespace DeskPets
         public int FrameW;
         public int FrameH;
         public int Scale;
+        public bool PixelArt = true;
+        public bool Playful;
         public Dictionary<string, StateAnim> States = new Dictionary<string, StateAnim>();
 
         public int SpriteW { get { return FrameW * Scale; } }
@@ -61,8 +63,12 @@ namespace DeskPets
             def.FrameW = Convert.ToInt32(fs[0]);
             def.FrameH = Convert.ToInt32(fs[1]);
             def.Scale = root.ContainsKey("scale") ? Convert.ToInt32(root["scale"]) : 3;
+            def.PixelArt = !root.ContainsKey("pixelArt") || Convert.ToBoolean(root["pixelArt"]);
+            def.Playful = root.ContainsKey("playful") ? Convert.ToBoolean(root["playful"]) : def.Id == "golden";
             if (def.Scale < 1) def.Scale = 1;
             if (def.Scale > 8) def.Scale = 8;
+            if (def.FrameW < 1 || def.FrameH < 1 || def.FrameW * def.Scale > 192 || def.FrameH * def.Scale > 192)
+                throw new InvalidDataException("宠物大小超出桌面限制");
 
             Dictionary<string, object> states = (Dictionary<string, object>)root["states"];
             foreach (KeyValuePair<string, object> kv in states)
@@ -77,6 +83,14 @@ namespace DeskPets
                 string pngPath = Path.Combine(dir, file);
                 if (!File.Exists(pngPath) || frames < 1) continue;
                 def.States[kv.Key] = LoadStrip(pngPath, frames, def.FrameW, def.FrameH, def.Scale, fps, loop);
+                if (st.ContainsKey("leftFile"))
+                {
+                    StateAnim left = LoadStrip(Path.Combine(dir, (string)st["leftFile"]), frames,
+                        def.FrameW, def.FrameH, def.Scale, fps, loop);
+                    foreach (Bitmap previous in def.States[kv.Key].Left) previous.Dispose();
+                    foreach (Bitmap extra in left.Left) extra.Dispose();
+                    def.States[kv.Key].Left = left.Right;
+                }
             }
 
             if (!def.States.ContainsKey("idle"))
@@ -113,6 +127,8 @@ namespace DeskPets
             anim.Left = new Bitmap[frames];
             using (Bitmap strip = new Bitmap(path))
             {
+                if (strip.Width != frames * fw || strip.Height != fh)
+                    throw new InvalidDataException("动画尺寸与说明不符：" + path);
                 for (int i = 0; i < frames; i++)
                 {
                     Rectangle crop = new Rectangle(i * fw, 0, fw, fh);

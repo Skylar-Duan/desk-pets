@@ -1,0 +1,14 @@
+{
+  "name": "暖砂石滩",
+  "elements": [
+    {"type":"ellipse","x":5,"y":84,"w":125,"h":20,"color":"#E5D8BF"},
+    {"type":"ellipse","x":245,"y":86,"w":137,"h":20,"color":"#DCCDB4"},
+    {"type":"ellipse","x":45,"y":67,"w":42,"h":26,"color":"#BAAA94"},
+    {"type":"ellipse","x":52,"y":69,"w":18,"h":6,"color":"#DBCCB8"},
+    {"type":"ellipse","x":93,"y":80,"w":27,"h":14,"color":"#D2C4AF"},
+    {"type":"ellipse","x":266,"y":73,"w":38,"h":22,"color":"#C4B69F"},
+    {"type":"ellipse","x":319,"y":82,"w":20,"h":12,"color":"#E8DDCC"},
+    {"type":"blade","x":183,"y":67,"w":7,"h":25,"color":"#A6AF94"},
+    {"type":"blade","x":189,"y":75,"w":8,"h":18,"color":"#BCC5A8"}
+  ]
+}

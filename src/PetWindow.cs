@@ -12,6 +12,18 @@ namespace DeskPets
     {
         Bitmap lastBitmap;
         int lastX = int.MinValue, lastY = int.MinValue;
+        byte lastOpacity;
+        bool clickThrough;
+
+        public bool ClickThrough
+        {
+            get { return clickThrough; }
+            set
+            {
+                clickThrough = value;
+                if (IsHandleCreated) NativeMethods.SetClickThrough(Handle, value);
+            }
+        }
 
         public PetWindow()
         {
@@ -35,6 +47,7 @@ namespace DeskPets
                             | NativeMethods.WS_EX_TOOLWINDOW
                             | NativeMethods.WS_EX_TOPMOST
                             | NativeMethods.WS_EX_NOACTIVATE;
+                if (clickThrough) cp.ExStyle |= NativeMethods.WS_EX_TRANSPARENT;
                 return cp;
             }
         }
@@ -42,11 +55,17 @@ namespace DeskPets
         /// <summary>把当前帧画到屏幕 (x,y)。位图与位置都没变时跳过。</summary>
         public void Render(Bitmap bmp, int x, int y)
         {
+            Render(bmp, x, y, 255);
+        }
+
+        public void Render(Bitmap bmp, int x, int y, byte opacity)
+        {
             if (bmp == null || IsDisposed || !IsHandleCreated) return;
-            if (ReferenceEquals(bmp, lastBitmap) && x == lastX && y == lastY) return;
+            if (ReferenceEquals(bmp, lastBitmap) && x == lastX && y == lastY && lastOpacity == opacity) return;
             lastBitmap = bmp;
             lastX = x;
             lastY = y;
+            lastOpacity = opacity;
 
             IntPtr screenDC = NativeMethods.GetDC(IntPtr.Zero);
             IntPtr memDC = NativeMethods.CreateCompatibleDC(screenDC);
@@ -62,7 +81,7 @@ namespace DeskPets
                 NativeMethods.BLENDFUNCTION blend = new NativeMethods.BLENDFUNCTION();
                 blend.BlendOp = NativeMethods.AC_SRC_OVER;
                 blend.BlendFlags = 0;
-                blend.SourceConstantAlpha = 255;
+                blend.SourceConstantAlpha = opacity;
                 blend.AlphaFormat = NativeMethods.AC_SRC_ALPHA;
                 NativeMethods.UpdateLayeredWindow(Handle, screenDC, ref dst, ref size,
                     memDC, ref src, 0, ref blend, NativeMethods.ULW_ALPHA);

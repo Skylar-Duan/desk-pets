@@ -2,7 +2,7 @@
   "name": "糯米",
   "characterId": "nuomi",
   "role": "third-character",
-  "runtimeStatus": "preserved-not-enabled",
+  "runtimeStatus": "enabled-local-skin",
   "sourceThread": {
     "id": "01a138c8-ee76-7970-8040-7dd1693eb582",
     "title": "02/Pet-1014-创建并选择现代布偶猫形象"
@@ -339,9 +339,23 @@
     },
     {
       "path": "README.md",
-      "bytes": 2126,
-      "sha256": "0d1a1bd64f3e32a0a9355926e07fccb5e5f4cc775e7c0600942bc5a96e73a127",
+      "bytes": 2260,
+      "sha256": "e872f25a7426bc7f18f9f67af31d0a1c463536e635e9ec9521c12d1d901d3866",
       "origin": "project-note"
     }
-  ]
+  ],
+  "desktopSkin": {
+    "projectRelativePath": "pets/nuomi",
+    "frameSize": [
+      96,
+      128
+    ],
+    "generatedStates": [
+      "sleep",
+      "drag",
+      "fall"
+    ],
+    "sourceDirectory": "assets-src/nuomi/desktop-source",
+    "platform": "Windows local application"
+  }
 }
