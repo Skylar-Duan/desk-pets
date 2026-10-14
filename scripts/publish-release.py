@@ -60,6 +60,7 @@ else:
 assert asset["size"] == package.stat().st_size
 if release["draft"]:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"draft": False})
+asset = next(a for a in release["assets"] if a["name"] == "DeskPets.zip")
 result = {"ok": True, "release": release["html_url"], "download": asset["browser_download_url"],
           "bytes": asset["size"], "sha256": digest, "sourceCommit": head}
 out = ROOT / "_work/release-result.json"
