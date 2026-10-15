@@ -13,7 +13,7 @@ namespace DeskPets
         public int SettingsVersion = 6;
         public Dictionary<string, int> PetSizes = new Dictionary<string, int>();
         public string Background = "none";
-        public int BackgroundHeight = 96;
+        public int BackgroundHeight = 60;
         public int BackgroundTransparency = 75;
 
         public static string FilePath
@@ -82,15 +82,8 @@ namespace DeskPets
 
         public void RestoreDefaults()
         {
-            UserSettings defaults = new UserSettings();
-            SelectedPets = defaults.SelectedPets;
-            Visible = defaults.Visible;
-            ClickThrough = defaults.ClickThrough;
-            SettingsVersion = defaults.SettingsVersion;
-            PetSizes = defaults.PetSizes;
-            Background = defaults.Background;
-            BackgroundHeight = defaults.BackgroundHeight;
-            BackgroundTransparency = defaults.BackgroundTransparency;
+            PetSizes = new Dictionary<string, int>();
+            BackgroundHeight = 60;
         }
 
         public void Select(string id, bool enabled)

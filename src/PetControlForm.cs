@@ -105,7 +105,7 @@ namespace DeskPets
             exitButton = MakeButton("退出", false, true, delegate { onExit(); });
             resetButton = MakeButton("恢复默认", false, true, delegate { RestoreDefaults(); });
             resetButton.AccessibleName = "恢复默认";
-            tooltips.SetToolTip(resetButton, "恢复三位默认伙伴、100%大小、默认背景和互动设置");
+            tooltips.SetToolTip(resetButton, "只恢复宠物100%与背景60px，保留显示选择和其它设置");
             foreach (PetDef def in defs)
             {
                 PetCard card = new PetCard(def, uiScale); card.Font = Font;
@@ -145,10 +145,7 @@ namespace DeskPets
         void RestoreDefaults()
         {
             settings.RestoreDefaults();
-            PetDef initial = definitions.Find(delegate(PetDef def) { return def.Id == "ragdoll"; });
-            focusedId = initial == null ? (definitions.Count == 0 ? "" : definitions[0].Id) : initial.Id;
-            refreshing = true; interaction.Checked = !settings.ClickThrough; refreshing = false;
-            modes.SelectedIndex = 0; CaptureScale(); RefreshControls();
+            CaptureScale(); RefreshControls();
             changed();
             if (SizeAdjustmentFinished != null) SizeAdjustmentFinished(this, EventArgs.Empty);
         }

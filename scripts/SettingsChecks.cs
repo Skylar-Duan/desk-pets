@@ -38,15 +38,17 @@ static class SettingsChecks
             Require(migrated.SizeFor("nuomi") == 300, "新范围应支持300%，不能沿用旧200%夹值");
             File.WriteAllText(path + ".tmp", serializer.Serialize(migrated)); File.Replace(path + ".tmp", path, null);
             Require(UserSettings.LoadFrom(path).SizeFor("nuomi") == 300, "300%重启后应保留");
+            migrated.Visible = false; migrated.ClickThrough = true;
             migrated.RestoreDefaults();
-            Require(migrated.SelectedPets.Length == 3 && migrated.IsSelected("ragdoll") && migrated.IsSelected("lolo") && migrated.IsSelected("nuomi") && !migrated.IsSelected("golden"), "恢复默认应选择三位默认伙伴");
+            Require(migrated.SelectedPets.Length == 4 && migrated.IsSelected("ragdoll") && migrated.IsSelected("lolo") && migrated.IsSelected("nuomi") && migrated.IsSelected("golden"), "恢复默认不能改变选中的伙伴");
             Require(migrated.PetSizes.Count == 0 && migrated.SizeFor("nuomi") == 100 && migrated.SizeFor("lolo") == 100, "恢复默认应清除所有自定义大小");
-            Require(migrated.Visible && !migrated.ClickThrough && migrated.Background == "none" && migrated.BackgroundHeight == 96 && migrated.BackgroundTransparency == 75, "恢复默认应还原背景与互动");
+            Require(!migrated.Visible && migrated.ClickThrough && migrated.Background == "garden" && migrated.BackgroundHeight == 60 && migrated.BackgroundTransparency == 73, "恢复默认只重置尺寸，保留显隐、背景样式、透明度与互动");
+            Require(new UserSettings().BackgroundHeight == 60, "新用户默认背景高度应为60px");
             linked = ScaleAdjustment.Capture(migrated);
             Require(linked.MaximumPercent(false) == 300, "默认伙伴应可一起放大到300%");
             linked.Apply(migrated, 300, false);
-            Require(migrated.SizeFor("nuomi") == 300 && migrated.SizeFor("lolo") == 300 && migrated.BackgroundHeight == 96, "伙伴一起300%不应改变背景");
-            Console.WriteLine("PASS: migration, 300% persistence, complete restore defaults, linked ratios and background bounds.");
+            Require(migrated.SizeFor("nuomi") == 300 && migrated.SizeFor("lolo") == 300 && migrated.BackgroundHeight == 60, "伙伴一起300%不应改变背景");
+            Console.WriteLine("PASS: migration, 300% persistence, size-only reset preserving display choices, linked ratios and background bounds.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }

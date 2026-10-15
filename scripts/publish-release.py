@@ -61,7 +61,7 @@ except urllib.error.HTTPError as error:
     if error.code != 404:
         raise RuntimeError("GitHub Release读取失败，HTTP " + str(error.code)) from None
     if version == "1.2.0":
-        body = "新增恢复默认设置和手动检查更新；宠物大小范围扩展至50%–300%。陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"
+        body = "宠物大小范围扩展至50%–300%；恢复默认只将所有宠物大小设为100%、背景高度设为60px，保留宠物选择、总显隐、背景开关与样式、透明度和互动设置。新用户背景高度默认60px，已有高度不会自动迁移，点击恢复默认才会重置。新增手动检查更新；陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"
     else:
         body = "发布桌面小伙伴 " + version + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"
     release = api(base + "/releases", "POST", {"tag_name": TAG, "target_commitish": head, "name": "桌面小伙伴 " + version,
@@ -88,7 +88,7 @@ if release["draft"]:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"draft": False})
 if args.replace_same_version:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"body":
-        "新增恢复默认设置和手动检查更新；宠物大小范围扩展至50%–300%。陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+        "宠物大小范围扩展至50%–300%；恢复默认只将所有宠物大小设为100%、背景高度设为60px，保留宠物选择、总显隐、背景开关与样式、透明度和互动设置。新用户背景高度默认60px，已有高度不会自动迁移，点击恢复默认才会重置。新增手动检查更新；陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
 else:
     release = api(base + "/releases/" + str(release["id"]))
 asset = next(a for a in release["assets"] if a["name"] == "DeskPets.zip")
