@@ -2,10 +2,11 @@
   "name": "洛洛",
   "breed": "金色寻回猎犬",
   "frameSize": [
-    192,
-    192
+    384,
+    384
   ],
   "scale": 1,
+  "baseSizePercent": 75,
   "pixelArt": false,
   "playful": true,
   "states": {
@@ -47,7 +48,7 @@
     },
     "fall": {
       "file": "fall.png",
-      "frames": 3,
+      "frames": 1,
       "fps": 4,
       "loop": true
     },

@@ -1,17 +1,16 @@
 {
   "name": "糯米",
   "frameSize": [
-    96,
-    128
+    384,
+    512
   ],
   "scale": 1,
-  "baseSizePercent": 180,
+  "baseSizePercent": 45,
   "pixelArt": false,
   "playful": false,
   "facing": "right",
   "states": {
     "idle": {
-      "poseScale": 0.70,
       "file": "idle.png",
       "frames": 6,
       "fps": 5,
@@ -32,35 +31,30 @@
       "leftFile": "run-left.png"
     },
     "sit": {
-      "poseScale": 0.70,
       "file": "sit.png",
       "frames": 6,
       "fps": 4,
       "loop": true
     },
     "sleep": {
-      "poseScale": 0.85,
       "file": "sleep.png",
       "frames": 4,
       "fps": 2,
       "loop": true
     },
     "drag": {
-      "poseScale": 0.78,
       "file": "drag.png",
       "frames": 2,
       "fps": 3,
       "loop": true
     },
     "fall": {
-      "poseScale": 0.78,
       "file": "fall.png",
       "frames": 2,
       "fps": 4,
       "loop": true
     },
     "happy": {
-      "poseScale": 0.70,
       "file": "happy.png",
       "frames": 4,
       "fps": 4,

@@ -30,6 +30,9 @@ static class ExportWebAssets
             foreach (PetDef def in defs)
                 using (def)
                 {
+                    // Modern assets retain twice the display resolution for crisp enlarged previews.
+                    double displayScale = def.PixelArt ? 1.0 : 0.5;
+                    if (!def.PixelArt) def.SetSize(200);
                     string folder = Path.Combine(args[1], def.Id);
                     Directory.CreateDirectory(folder);
                     var states = new Dictionary<string, object>();
@@ -43,7 +46,7 @@ static class ExportWebAssets
                     }
                     string path = Path.Combine(folder, "pet.json");
                     var manifest = new { name = def.Name, frameSize = new[] { def.SpriteW, def.SpriteH },
-                        scale = 1, pixelArt = def.PixelArt, playful = def.Playful, calibrated = true, states = states };
+                        scale = displayScale, pixelArt = def.PixelArt, playful = def.Playful, calibrated = true, states = states };
                     File.WriteAllText(path + ".tmp", new JavaScriptSerializer().Serialize(manifest), new UTF8Encoding(false));
                     if (File.Exists(path)) File.Replace(path + ".tmp", path, null);
                     else File.Move(path + ".tmp", path);

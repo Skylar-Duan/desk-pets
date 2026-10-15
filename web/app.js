@@ -3,7 +3,7 @@
   "use strict";
 
   var PETS = ["ragdoll", "golden", "nuomi", "lolo"];
-  var ASSET_REV = "20261014-150-lolo-r5";
+  var ASSET_REV = "20261015-hd-interaction-r6";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var playground = document.getElementById("playground");
 
@@ -30,6 +30,7 @@
     this.chasing = false;
     this.buddy = null;
     this.dragging = false;
+    this.pressed = false;
 
     this.el = document.createElement("div");
     this.el.className = "pet";
@@ -80,6 +81,7 @@
   };
 
   WebPet.prototype.tick = function (dt) {
+    if (this.pressed && !this.dragging) { this.render(); return; }
     this.stateT += dt;
     this.animT += dt;
     var ground = this.groundY();
@@ -157,24 +159,28 @@
 
   WebPet.prototype.bindPointer = function () {
     var self = this;
-    var downX = 0, downY = 0, downT = 0, moved = false, grabX = 0, grabY = 0;
+    var downX = 0, downY = 0, grabX = 0, grabY = 0, activePointer = null;
     var samples = [];
     this.el.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0 || activePointer !== null) return;
       e.preventDefault();
+      activePointer = e.pointerId;
       self.el.setPointerCapture(e.pointerId);
-      self.dragging = true;
-      self.el.classList.add("grabbed");
-      self.enter("drag");
-      downX = e.clientX; downY = e.clientY; downT = performance.now();
+      self.pressed = true;
+      downX = e.clientX; downY = e.clientY;
       var rect = playground.getBoundingClientRect();
       grabX = e.clientX - rect.left - self.x; grabY = e.clientY - rect.top - self.y;
-      moved = false;
       samples = [];
     });
     this.el.addEventListener("pointermove", function (e) {
-      if (!self.dragging) return;
+      if (e.pointerId !== activePointer) return;
       var rect = playground.getBoundingClientRect();
-      if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 6) moved = true;
+      if (!self.dragging) {
+        if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) <= 6) return;
+        self.dragging = true;
+        self.el.classList.add("grabbed");
+        self.enter("drag");
+      }
       self.x = e.clientX - rect.left - grabX;
       self.y = e.clientY - rect.top - grabY;
       samples.push([performance.now(), e.clientX, e.clientY]);
@@ -182,12 +188,16 @@
       self.render();
     });
     function up(e) {
-      if (!self.dragging) return;
+      if (e.pointerId !== activePointer) return;
+      var wasDragging = self.dragging;
+      activePointer = null;
+      self.pressed = false;
       self.dragging = false;
       self.el.classList.remove("grabbed");
       if (self.el.hasPointerCapture(e.pointerId)) self.el.releasePointerCapture(e.pointerId);
-      var isClick = e.type === "pointerup" && !moved && performance.now() - downT < 400;
+      var isClick = e.type === "pointerup" && !wasDragging;
       if (isClick) { self.enter("happy"); return; }
+      if (!wasDragging) return;
       var vx = 0, vy = 0;
       if (samples.length >= 2) {
         var last = samples[samples.length - 1], first = samples[0];
@@ -204,6 +214,7 @@
     }
     this.el.addEventListener("pointerup", up);
     this.el.addEventListener("pointercancel", up);
+    this.el.addEventListener("lostpointercapture", up);
   };
 
   function fallback(def, s) {
@@ -224,6 +235,7 @@
       var st = def.states[name];
       var cell = document.createElement("div");
       cell.className = "cell";
+      cell.style.flexBasis = Math.max(190, def.frameSize[0] * scale) + "px";
       var a = document.createElement("div");
       a.className = "anim";
       if (def.pixelArt === false) a.classList.add("modern");
@@ -275,19 +287,28 @@
       var check = document.createElement("input"); check.type = "checkbox"; check.checked = p.def.id !== "golden";
       p.el.hidden = !check.checked;
       check.setAttribute("aria-label", "展示" + p.def.name);
-      check.addEventListener("change", function() { p.el.hidden = !check.checked; });
+      check.addEventListener("change", function() {
+        p.el.hidden = !check.checked;
+        if (!check.checked) {
+          p.pressed = false; p.dragging = false;
+          p.el.classList.remove("grabbed");
+          p.enter("idle"); p.y = p.groundY();
+        }
+      });
       group.appendChild(check); group.appendChild(document.createTextNode(" " + p.def.name + " "));
-      var size = document.createElement("input"); size.type = "number"; size.min = 50; size.max = 200; size.step = 10; size.value = 100;
+      var size = document.createElement("input"); size.type = "range"; size.min = 50; size.max = 200; size.step = 1; size.value = 100;
+      var readout = document.createElement("output"); readout.textContent = "100%";
       size.setAttribute("aria-label", p.def.name + "演示大小");
-      size.addEventListener("change", function() {
+      size.addEventListener("input", function() {
         var percent = Math.max(50, Math.min(200, Number(size.value) || 100)); size.value = percent;
+        readout.textContent = percent + "%";
         var foot = p.y + p.h, center = p.x + p.w / 2;
         p.scale = (p.def.scale || 1) * percent / 100;
         p.w = p.def.frameSize[0] * p.scale; p.h = p.def.frameSize[1] * p.scale;
         p.x = Math.max(0, Math.min(playground.clientWidth - p.w, center - p.w / 2)); p.y = foot - p.h;
         p.el.style.width = p.w + "px"; p.el.style.height = p.h + "px"; p.render();
       });
-      group.appendChild(size); group.appendChild(document.createTextNode("%")); selectors.appendChild(group);
+      group.appendChild(size); group.appendChild(readout); selectors.appendChild(group);
     });
     window.addEventListener("resize", function() { pets.forEach(function(p) { p.x = Math.max(0,Math.min(p.x,playground.clientWidth-p.w)); if (!p.dragging && p.state !== "fall") p.y = p.groundY(); p.render(); }); });
     window.DeskPetsDemo = {pets:pets, defs:defs};

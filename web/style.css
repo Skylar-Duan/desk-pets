@@ -47,9 +47,12 @@
 .pet { z-index: 1; }
 .demo-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; margin:12px 0; color:var(--fg); }
 .demo-controls label { display:flex; align-items:center; gap:6px; font-size:14px; }
-.demo-controls input[type="number"] { width:64px; padding:5px; }
+.demo-controls output { font-size:12px; font-variant-numeric:tabular-nums; min-width:36px; color:var(--fg2); }
 .demo-controls select { padding:6px; max-width:150px; }
-.demo-controls input[type="range"] { width:110px; }
+.demo-controls input[type="range"] { appearance:none; width:100px; height:5px; border:0; border-radius:20px; background:var(--line); cursor:pointer; }
+.demo-controls input[type="range"]::-webkit-slider-thumb { appearance:none; height:15px; width:15px; border:3px solid var(--panel); border-radius:50%; background:var(--brand-ink); box-shadow:0 1px 5px #0002; }
+.demo-controls input[type="range"]::-moz-range-thumb { height:10px; width:10px; border:3px solid var(--panel); border-radius:50%; background:var(--brand-ink); box-shadow:0 1px 5px #0002; }
+.demo-controls input[type="range"]:focus-visible { outline:2px solid var(--brand-ink); outline-offset:5px; }
 .demo-controls input, .demo-controls select { accent-color:var(--brand-ink); color:var(--fg); background-color:var(--panel); border:1px solid var(--line); border-radius:4px; }
 .demo-note { color:var(--fg2); font-size:13px; margin-top:10px; }
 .scene-layer { position:absolute; top:auto; bottom:34px; left:0; width:100%; display:block; pointer-events:none; }

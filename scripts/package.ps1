@@ -12,6 +12,10 @@ $qaRoot = Join-Path $projectRoot '_work\qa'
 New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
 Push-Location $projectRoot
 try {
+    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe "/out:$qaRoot\SettingsChecks.exe" /r:System.Web.Extensions.dll scripts\SettingsChecks.cs src\UserSettings.cs src\ScaleAdjustment.cs
+    if ($LASTEXITCODE -ne 0) { throw '设置与联动验收编译失败' }
+    & (Join-Path $qaRoot 'SettingsChecks.exe') $qaRoot
+    if ($LASTEXITCODE -ne 0) { throw '设置迁移或联动检查失败，停止打包' }
     & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe "/out:$qaRoot\AssetChecks.exe" /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Web.Extensions.dll scripts\AssetChecks.cs src\PetDef.cs src\PetWindow.cs src\NativeMethods.cs src\Backdrop.cs src\UserSettings.cs src\PetBrain.cs
     if ($LASTEXITCODE -ne 0) { throw '发布验收检查编译失败' }
     & (Join-Path $qaRoot 'AssetChecks.exe') $projectRoot (Join-Path $projectRoot '_work\nuomi-desktop-qa')

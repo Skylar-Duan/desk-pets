@@ -15,8 +15,8 @@ namespace DeskPets
         {
             public PetBrain Brain;
             public PetWindow Window;
+            public bool Pressed;
             public bool Dragging;
-            public bool Moved;
             public bool Enabled;
             public Point DownPos;
             public double DownTime;
@@ -67,22 +67,25 @@ namespace DeskPets
             {
                 if (e.Button != MouseButtons.Left) return;
                 Point cur = Cursor.Position;
-                item.Dragging = true;
+                item.Pressed = true;
+                item.Dragging = false;
                 item.Window.Capture = true;
-                item.Moved = false;
                 item.DownPos = cur;
                 item.DownTime = clock.Elapsed.TotalSeconds;
                 item.GrabDx = cur.X - (int)item.Brain.X;
                 item.GrabDy = cur.Y - (int)item.Brain.Y;
                 item.Samples.Clear();
-                item.Brain.BeginDrag();
             };
             item.Window.MouseMove += delegate(object s, MouseEventArgs e)
             {
-                if (!item.Dragging) return;
+                if (!item.Pressed) return;
                 Point cur = Cursor.Position;
-                if (Math.Abs(cur.X - item.DownPos.X) + Math.Abs(cur.Y - item.DownPos.Y) > 6)
-                    item.Moved = true;
+                if (!item.Dragging)
+                {
+                    if (Math.Abs(cur.X - item.DownPos.X) + Math.Abs(cur.Y - item.DownPos.Y) <= 6) return;
+                    item.Dragging = true;
+                    item.Brain.BeginDrag();
+                }
                 item.Brain.DragTo(cur.X - item.GrabDx, cur.Y - item.GrabDy);
                 double t = clock.Elapsed.TotalSeconds;
                 item.Samples.Add(new double[] { t, cur.X, cur.Y });
@@ -90,11 +93,12 @@ namespace DeskPets
             };
             item.Window.MouseUp += delegate(object s, MouseEventArgs e)
             {
-                if (e.Button != MouseButtons.Left || !item.Dragging) return;
+                if (e.Button != MouseButtons.Left || !item.Pressed) return;
+                bool wasDragging = item.Dragging;
+                item.Pressed = false;
                 item.Dragging = false;
                 item.Window.Capture = false;
-                double now = clock.Elapsed.TotalSeconds;
-                bool isClick = !item.Moved && (now - item.DownTime) < 0.4;
+                bool isClick = !wasDragging;
                 double vxOut = 0, vyOut = 0;
                 if (!isClick && item.Samples.Count >= 2)
                 {
@@ -116,9 +120,11 @@ namespace DeskPets
             };
             item.Window.MouseCaptureChanged += delegate
             {
-                if (!item.Dragging || item.Window.Capture) return;
+                if (!item.Pressed || item.Window.Capture) return;
+                bool wasDragging = item.Dragging;
+                item.Pressed = false;
                 item.Dragging = false;
-                item.Brain.EndDrag(0, 0, false);
+                if (wasDragging) item.Brain.EndDrag(0, 0, false);
             };
         }
 
@@ -137,7 +143,7 @@ namespace DeskPets
                 env.Dt = dt;
                 env.IdleSeconds = idleSec;
                 env.Buddy = enabledItems.Count > 1 ? enabledItems[(i + 1) % enabledItems.Count].Brain : null;
-                enabledItems[i].Brain.Tick(env);
+                if (!enabledItems[i].Pressed || enabledItems[i].Dragging) enabledItems[i].Brain.Tick(env);
             }
             for (int i = 0; i < items.Count; i++)
             {

@@ -1,0 +1,20 @@
+{
+  "archive": "_work/imports/nuomi-20261014/nuomi-codex-handoff.zip",
+  "archiveSha256": "4447e869c3dad471baedbd0366546eb53b84a8731e540440b89bd29d91c03716",
+  "files": [
+    {
+      "file": "idle.png",
+      "archiveMember": "nuomi-codex-handoff/work/nuomi/decoded/idle.png",
+      "bytes": 1544225,
+      "sha256": "19423e9cc358e447533b398553c77fab08562550e1954b622c33632c5324fd02",
+      "purpose": "approved full-resolution original, re-extracted without modifying pixels"
+    },
+    {
+      "file": "waving.png",
+      "archiveMember": "nuomi-codex-handoff/work/nuomi/decoded/waving.png",
+      "bytes": 1668260,
+      "sha256": "d7bbf58cc220e757939a3fc8f0b659b5bddc4ed70c97370f95b4352b3eef8add",
+      "purpose": "approved full-resolution original, re-extracted without modifying pixels"
+    }
+  ]
+}

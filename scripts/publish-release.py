@@ -75,7 +75,7 @@ if release["draft"]:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"draft": False})
 if args.replace_same_version:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"body":
-        "小布、糯米和现代金毛洛洛可独立选择、调节大小，像素阿金也保留。新增可调高度及透明度的桌面背景，修复字体裁切、拖动、各动作体型与贴地。三只原有动物的新100%统一采用上一轮150%的体型；洛洛按同一基准校准，具有八种状态、30帧动作。\n\n本轮继续使用1.1.0。本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+        "重做伙伴管理窗口，使用拖动滑杆单独调整、联动伙伴或同时调整背景；修复轻点时突然变大，糯米改用高清源素材。洛洛默认体型提高到前版150%，新100%对应旧150%；已保存大小自动换算。四款伙伴保留，仍有八种动作。\n\n本轮继续使用1.1.0。本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
 else:
     release = api(base + "/releases/" + str(release["id"]))
 asset = next(a for a in release["assets"] if a["name"] == "DeskPets.zip")

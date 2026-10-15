@@ -11,24 +11,27 @@ sys.path.insert(0, str(ROOT / 'assets-src/nuomi/desktop-source'))
 from extract_strip_frames import connected_components, component_group_image
 
 OUT = ROOT / 'pets/lolo'
-QA = ROOT / '_work/lolo-qa'
+QA = ROOT / '_work/qa/pose-scale/lolo'
 OUT.mkdir(parents=True, exist_ok=True)
 QA.mkdir(parents=True, exist_ok=True)
-SIZE = (192, 192)
-BASELINE = 188
-SCALE = .27
+SIZE = (384, 384)
+BASELINE = 376
+# 每个动作都从原始大图直接缩一次；头部尺度一致，腿部伸展保留自然变化。
+SCALE = .54
 STATES = {
     'idle': ('qwen/rows/idle.png', [0,1,2,3], 3, True, 1),
-    'walk': ('builtin/walk-grid.png', [0,1,2,3], 5, True, 1.10),
-    'run': ('builtin/run-grid.png', [0,1,2,3], 8, True, 1.10),
+    'walk': ('builtin/walk-grid.png', [0,1,2,3], 5, True, 1),
+    'run': ('builtin/run-grid.png', [0,1,2,3], 8, True, 1),
     'sit': ('qwen/rows/sit.png', [0,1,2,3], 2, True, 1),
     'sleep': ('qwen/rows/sleep.png', [1,2,3], 1.5, True, 1),
-    'drag': ('qwen/rows/drag.png', [0,1,2,3], 3, True, 1.35),
-    'fall': ('qwen/rows/fall.png', [1,2,3], 4, True, 1.35),
+    'drag': ('qwen/rows/drag.png', [0,1,2,3], 3, True, 1),
+    # 原行悬空候选头部约154px，静置178px；按头宽校准整组，不按伸腿后的总高。
+    # 只保留最后一格完整姿态，位移由桌面物理提供。
+    'fall': ('qwen/rows/fall.png', [3], 4, True, 1.16),
     'happy': ('qwen/rows/happy.png', [0,1,2,3], 4, False, 1),
 }
 
-manifest = {'name':'洛洛','breed':'金色寻回猎犬','frameSize':list(SIZE),'scale':1,
+manifest = {'name':'洛洛','breed':'金色寻回猎犬','frameSize':list(SIZE),'scale':1,'baseSizePercent':75,
             'pixelArt':False,'playful':True,'states':{}}
 audit = []
 preview = Image.new('RGB', (4*SIZE[0], len(STATES)*(SIZE[1]+24)), '#f4f0ea')

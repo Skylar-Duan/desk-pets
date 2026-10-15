@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
 
 namespace DeskPets
@@ -17,6 +18,8 @@ namespace DeskPets
         public bool Loop;
         public Bitmap[] BaseRight;
         public Bitmap[] BaseLeft;
+        public Bitmap[] SourceRight;
+        public Bitmap[] SourceLeft;
     }
 
     /// <summary>
@@ -75,8 +78,8 @@ namespace DeskPets
             def.Playful = root.ContainsKey("playful") ? Convert.ToBoolean(root["playful"]) : def.Id == "golden";
             if (def.Scale < 1) def.Scale = 1;
             if (def.Scale > 8) def.Scale = 8;
-            if (def.FrameW < 1 || def.FrameH < 1 || def.FrameW * def.Scale > 192 || def.FrameH * def.Scale > 192)
-                throw new InvalidDataException("宠物大小超出桌面限制");
+            if (def.FrameW < 1 || def.FrameH < 1 || def.FrameW * def.Scale > 1024 || def.FrameH * def.Scale > 1024)
+                throw new InvalidDataException("宠物源素材大小超出限制");
             if (def.BaseSizePercent < 25 || def.BaseSizePercent > 200 || def.SpriteW > 288 || def.SpriteH > 288)
                 throw new InvalidDataException("宠物默认体型超出桌面限制");
 
@@ -128,15 +131,6 @@ namespace DeskPets
                 if (!def.States.ContainsKey(s))
                     def.States[s] = def.States["idle"];
 
-            if (def.BaseSizePercent != 100)
-                foreach (StateAnim animation in new HashSet<StateAnim>(def.States.Values))
-                {
-                    Bitmap[] right = def.ResizeFrames(animation.Right), left = def.ResizeFrames(animation.Left);
-                    foreach (Bitmap bitmap in animation.Right) bitmap.Dispose();
-                    foreach (Bitmap bitmap in animation.Left) bitmap.Dispose();
-                    animation.Right = right;
-                    animation.Left = left;
-                }
             def.SetSize(100);
             return def;
         }
@@ -150,18 +144,20 @@ namespace DeskPets
             HashSet<StateAnim> animations = new HashSet<StateAnim>(States.Values);
             foreach (StateAnim animation in animations)
             {
-                if (animation.BaseRight == null)
+                if (animation.SourceRight == null)
                 {
-                    animation.BaseRight = animation.Right;
-                    animation.BaseLeft = animation.Left;
+                    animation.SourceRight = animation.Right;
+                    animation.SourceLeft = animation.Left;
+                    animation.BaseRight = ResizeFrames(animation.SourceRight);
+                    animation.BaseLeft = ResizeFrames(animation.SourceLeft);
                 }
-                else if (!ReferenceEquals(animation.Right, animation.BaseRight))
+                else if (!ReferenceEquals(animation.Right, animation.BaseRight) && !ReferenceEquals(animation.Right, animation.SourceRight))
                 {
                     foreach (Bitmap bitmap in animation.Right) bitmap.Dispose();
                     foreach (Bitmap bitmap in animation.Left) bitmap.Dispose();
                 }
-                animation.Right = percent == 100 ? animation.BaseRight : ResizeFrames(animation.BaseRight);
-                animation.Left = percent == 100 ? animation.BaseLeft : ResizeFrames(animation.BaseLeft);
+                animation.Right = percent == 100 ? animation.BaseRight : ResizeFrames(animation.SourceRight);
+                animation.Left = percent == 100 ? animation.BaseLeft : ResizeFrames(animation.SourceLeft);
                 foreach (Bitmap bitmap in animation.Right) RegisterGround(bitmap);
                 foreach (Bitmap bitmap in animation.Left) RegisterGround(bitmap);
             }
@@ -191,13 +187,20 @@ namespace DeskPets
             if (!PixelArt)
             {
                 int bottom = image.Height - 1;
-                for (; bottom >= 0; bottom--)
+                BitmapData pixels = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                try
                 {
-                    bool visible = false;
-                    for (int x = 0; x < image.Width; x++)
-                        if (image.GetPixel(x, bottom).A >= 16) { visible = true; break; }
-                    if (visible) break;
+                    byte[] row = new byte[image.Width * 4];
+                    for (; bottom >= 0; bottom--)
+                    {
+                        Marshal.Copy(IntPtr.Add(pixels.Scan0, bottom * pixels.Stride), row, 0, row.Length);
+                        bool visible = false;
+                        for (int x = 0; x < image.Width; x++)
+                            if (row[x * 4 + 3] >= 16) { visible = true; break; }
+                        if (visible) break;
+                    }
                 }
+                finally { image.UnlockBits(pixels); }
                 padding = Math.Max(0, image.Height - 1 - bottom);
             }
             groundPadding[image] = padding;
@@ -213,7 +216,7 @@ namespace DeskPets
         {
             HashSet<Bitmap> images = new HashSet<Bitmap>();
             foreach (StateAnim animation in States.Values)
-                foreach (Bitmap[] frames in new Bitmap[][] { animation.Right, animation.Left, animation.BaseRight, animation.BaseLeft })
+                foreach (Bitmap[] frames in new Bitmap[][] { animation.Right, animation.Left, animation.BaseRight, animation.BaseLeft, animation.SourceRight, animation.SourceLeft })
                     if (frames != null) foreach (Bitmap image in frames) images.Add(image);
             foreach (Bitmap image in images) image.Dispose();
         }

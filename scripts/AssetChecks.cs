@@ -28,6 +28,9 @@ static class AssetChecks
             Require(nuomi != null && !nuomi.PixelArt && !nuomi.Playful, "糯米应使用现代画风与猫的行为");
             PetDef lolo = defs.Find(delegate(PetDef def) { return def.Id == "lolo"; });
             Require(lolo != null && !lolo.PixelArt && lolo.Playful && lolo.Breed == "金色寻回猎犬", "洛洛应使用现代金毛的素材与行为");
+            Require(nuomi.FrameW >= 384 && nuomi.FrameH >= 512, "糯米应保留高清源帧，不能只放大低清成品");
+            Require(nuomi.SpriteW == 173 && nuomi.SpriteH == 230, "糯米默认显示基准不应随分辨率提高而变大");
+            Require(lolo.SpriteW == 288 && lolo.SpriteH == 288, "洛洛新默认100%应等于前版150%");
             foreach (PetDef def in defs)
             {
                 Require(def.SpriteH <= 288 && def.SpriteW <= 288, "基础宠物窗口过大");
@@ -104,7 +107,8 @@ static class AssetChecks
             if (args.Length > 1)
             {
                 Directory.CreateDirectory(args[1]);
-                using (Bitmap comparison = new Bitmap(224 * defs.Count, 1280))
+                const int compareWidth = 320;
+                using (Bitmap comparison = new Bitmap(compareWidth * defs.Count, 1280))
                 using (Graphics graphics = Graphics.FromImage(comparison))
                 using (Font font = new Font("Microsoft YaHei UI", 12, GraphicsUnit.Pixel))
                 {
@@ -117,8 +121,8 @@ static class AssetChecks
                         {
                             PetDef def = defs[column];
                             Bitmap frame = def.States[compareStates[row]].Right[0];
-                            graphics.DrawString(def.Name + " 100% · " + compareStates[row], font, Brushes.Black, column * 224 + 4, row * 320 + 4);
-                            graphics.DrawImageUnscaled(frame, column * 224 + (224 - frame.Width) / 2,
+                            graphics.DrawString(def.Name + " 100% · " + compareStates[row], font, Brushes.Black, column * compareWidth + 4, row * 320 + 4);
+                            graphics.DrawImageUnscaled(frame, column * compareWidth + (compareWidth - frame.Width) / 2,
                                 row * 320 + 301 - frame.Height + def.GroundPadding(frame));
                         }
                     }

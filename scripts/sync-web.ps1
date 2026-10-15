@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([string]$Python = 'python')
+$ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $qaRoot = Join-Path $projectRoot '_work\qa'
 New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
@@ -8,6 +9,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw '网页素材导出器编译失败' }
     & (Join-Path $qaRoot 'ExportWebAssets.exe') (Join-Path $projectRoot 'pets') (Join-Path $projectRoot 'web\assets')
     if ($LASTEXITCODE -ne 0) { throw '网页素材导出失败' }
+    & $Python (Join-Path $PSScriptRoot 'pack-web-assets.py')
+    if ($LASTEXITCODE -ne 0) { throw '网页高清素材无损打包失败' }
     Copy-Item -LiteralPath (Join-Path $projectRoot 'backgrounds') -Destination (Join-Path $projectRoot 'web') -Recurse -Force
     $webRoot = Join-Path $projectRoot 'web'
     $pagePath = Join-Path $webRoot 'index.html'

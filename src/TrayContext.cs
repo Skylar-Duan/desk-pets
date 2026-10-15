@@ -27,6 +27,7 @@ namespace DeskPets
         readonly BackdropManager backdrop;
         PetControlForm gallery;
         bool settingsDirty;
+        bool sizesPending;
         DateTime changedAt;
         bool saveWarningShown;
         int displayRefreshTicks;
@@ -76,6 +77,8 @@ namespace DeskPets
             {
                 if (exitSignal.WaitOne(0)) { OnExit(null, EventArgs.Empty); return; }
                 if (gallerySignal.WaitOne(0)) ShowGallery();
+                if (sizesPending && (gallery == null || !gallery.IsAdjustingSizes) &&
+                    (DateTime.UtcNow - changedAt).TotalMilliseconds >= 120) ApplyPetSizes();
                 if (settingsDirty && (DateTime.UtcNow - changedAt).TotalMilliseconds > 500) SaveSettings();
                 if (++displayRefreshTicks >= 10)
                 {
@@ -93,8 +96,11 @@ namespace DeskPets
         void ShowGallery()
         {
             if (gallery == null || gallery.IsDisposed)
+            {
                 gallery = new PetControlForm(definitions, scenes, settings, SettingsChanged,
                     delegate { OnToggle(null, EventArgs.Empty); }, delegate { OnExit(null, EventArgs.Empty); });
+                gallery.SizeAdjustmentFinished += delegate { ApplyPetSizes(); };
+            }
             gallery.RefreshState();
             gallery.Show();
             if (gallery.WindowState == FormWindowState.Minimized)
@@ -113,7 +119,6 @@ namespace DeskPets
         {
             foreach (PetDef def in definitions)
             {
-                manager.SetSize(def.Id, settings.SizeFor(def.Id));
                 manager.Select(def.Id, settings.IsSelected(def.Id));
             }
             manager.SetClickThrough(settings.ClickThrough);
@@ -123,7 +128,15 @@ namespace DeskPets
             miToggle.Text = manager.PetsVisible ? "隐藏全部" : "召唤已选宠物";
             if (gallery != null && !gallery.IsDisposed) gallery.RefreshState();
             settingsDirty = true;
+            sizesPending = true;
             changedAt = DateTime.UtcNow;
+        }
+
+        void ApplyPetSizes()
+        {
+            if (!sizesPending) return;
+            sizesPending = false;
+            foreach (PetDef def in definitions) manager.SetSize(def.Id, settings.SizeFor(def.Id));
         }
 
         void SaveSettings()
