@@ -34,7 +34,19 @@ static class SettingsChecks
             linked.Apply(migrated, 100, false);
             Require(migrated.SizeFor("ragdoll") == 125 && migrated.SizeFor("golden") == 75, "联动来回拖动应从同一快照恢复");
             Require(ScaleAdjustment.Capture(migrated).MaximumPercent(true) == 100, "背景160时整体联动应停止继续放大");
-            Console.WriteLine("PASS: size migration preserves existing appearance, selection and background; linked adjustment keeps ratios and restores baseline.");
+            migrated.PetSizes["nuomi"] = 300;
+            Require(migrated.SizeFor("nuomi") == 300, "新范围应支持300%，不能沿用旧200%夹值");
+            File.WriteAllText(path + ".tmp", serializer.Serialize(migrated)); File.Replace(path + ".tmp", path, null);
+            Require(UserSettings.LoadFrom(path).SizeFor("nuomi") == 300, "300%重启后应保留");
+            migrated.RestoreDefaults();
+            Require(migrated.SelectedPets.Length == 3 && migrated.IsSelected("ragdoll") && migrated.IsSelected("lolo") && migrated.IsSelected("nuomi") && !migrated.IsSelected("golden"), "恢复默认应选择三位默认伙伴");
+            Require(migrated.PetSizes.Count == 0 && migrated.SizeFor("nuomi") == 100 && migrated.SizeFor("lolo") == 100, "恢复默认应清除所有自定义大小");
+            Require(migrated.Visible && !migrated.ClickThrough && migrated.Background == "none" && migrated.BackgroundHeight == 96 && migrated.BackgroundTransparency == 75, "恢复默认应还原背景与互动");
+            linked = ScaleAdjustment.Capture(migrated);
+            Require(linked.MaximumPercent(false) == 300, "默认伙伴应可一起放大到300%");
+            linked.Apply(migrated, 300, false);
+            Require(migrated.SizeFor("nuomi") == 300 && migrated.SizeFor("lolo") == 300 && migrated.BackgroundHeight == 96, "伙伴一起300%不应改变背景");
+            Console.WriteLine("PASS: migration, 300% persistence, complete restore defaults, linked ratios and background bounds.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }

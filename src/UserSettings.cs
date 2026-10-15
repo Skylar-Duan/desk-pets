@@ -60,7 +60,7 @@ namespace DeskPets
                         // 洛洛的新100%对应旧150%；保留已选择的实际体型，避免升级时再放大一遍。
                         int loloSize;
                         if (priorVersion < 6 && settings.PetSizes.TryGetValue("lolo", out loloSize))
-                            settings.PetSizes["lolo"] = Math.Max(50, Math.Min(200, (int)Math.Round(loloSize / 1.5)));
+                            settings.PetSizes["lolo"] = Math.Max(50, Math.Min(300, (int)Math.Round(loloSize / 1.5)));
                         settings.SettingsVersion = 6;
                         settings.BackgroundHeight = Math.Max(32, Math.Min(160, settings.BackgroundHeight));
                         settings.BackgroundTransparency = Math.Max(0, Math.Min(100, settings.BackgroundTransparency));
@@ -77,7 +77,20 @@ namespace DeskPets
         public int SizeFor(string id)
         {
             int value;
-            return PetSizes.TryGetValue(id, out value) ? Math.Max(50, Math.Min(200, value)) : 100;
+            return PetSizes.TryGetValue(id, out value) ? Math.Max(50, Math.Min(300, value)) : 100;
+        }
+
+        public void RestoreDefaults()
+        {
+            UserSettings defaults = new UserSettings();
+            SelectedPets = defaults.SelectedPets;
+            Visible = defaults.Visible;
+            ClickThrough = defaults.ClickThrough;
+            SettingsVersion = defaults.SettingsVersion;
+            PetSizes = defaults.PetSizes;
+            Background = defaults.Background;
+            BackgroundHeight = defaults.BackgroundHeight;
+            BackgroundTransparency = defaults.BackgroundTransparency;
         }
 
         public void Select(string id, bool enabled)

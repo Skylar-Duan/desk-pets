@@ -1,4 +1,4 @@
-﻿param([string]$Version = '1.1.0')
+﻿param([string]$Version = '1.2.0')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $buildId = [guid]::NewGuid().ToString('N').Substring(0, 8)
@@ -12,6 +12,10 @@ $qaRoot = Join-Path $projectRoot '_work\qa'
 New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
 Push-Location $projectRoot
 try {
+    & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe "/out:$qaRoot\UpdateChecks.exe" /r:System.Web.Extensions.dll scripts\UpdateChecks.cs src\UpdateChecker.cs src\AssemblyInfo.cs
+    if ($LASTEXITCODE -ne 0) { throw '更新检查验收编译失败' }
+    & (Join-Path $qaRoot 'UpdateChecks.exe')
+    if ($LASTEXITCODE -ne 0) { throw '更新检查验收失败，停止打包' }
     & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:exe "/out:$qaRoot\SettingsChecks.exe" /r:System.Web.Extensions.dll scripts\SettingsChecks.cs src\UserSettings.cs src\ScaleAdjustment.cs
     if ($LASTEXITCODE -ne 0) { throw '设置与联动验收编译失败' }
     & (Join-Path $qaRoot 'SettingsChecks.exe') $qaRoot

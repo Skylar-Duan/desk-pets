@@ -137,7 +137,7 @@ namespace DeskPets
 
         public void SetSize(int percent)
         {
-            percent = Math.Max(50, Math.Min(200, percent));
+            percent = Math.Max(50, Math.Min(300, percent));
             if (percent == DisplayPercent && groundPadding.Count > 0) return;
             DisplayPercent = percent;
             groundPadding.Clear();

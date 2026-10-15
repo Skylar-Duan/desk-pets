@@ -5,7 +5,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Timer = System.Windows.Forms.Timer;
 
 namespace DeskPets
 {
@@ -22,8 +25,12 @@ namespace DeskPets
         readonly ModernSegments modes = new ModernSegments(), scenes = new ModernSegments();
         readonly ModernSlider size = new ModernSlider(), height = new ModernSlider(), transparency = new ModernSlider();
         readonly ModernToggle interaction = new ModernToggle();
-        readonly ModernButton visibilityButton, collapseButton, exitButton;
-        readonly Label title, subtitle, galleryTitle, galleryHint, panelTitle, modeHint, backgroundTitle, savedHint;
+        readonly ModernButton visibilityButton, collapseButton, exitButton, resetButton, updateLink;
+        readonly ModernRefreshButton refreshButton = new ModernRefreshButton();
+        readonly ToolTip tooltips = new ToolTip();
+        readonly Label title, subtitle, galleryTitle, galleryHint, panelTitle, modeHint, backgroundTitle, updateStatus;
+        CancellationTokenSource updateCancellation;
+        string updateUrl;
         ScaleAdjustment scaleSnapshot;
         string focusedId;
         bool refreshing;
@@ -61,11 +68,17 @@ namespace DeskPets
             panelTitle = MakeLabel("陪伴设置", 16, FontStyle.Bold, PetPalette.Ink, adjustment);
             modeHint = MakeLabel("", 12, FontStyle.Regular, PetPalette.Muted, adjustment);
             backgroundTitle = MakeLabel("桌面背景", 14, FontStyle.Bold, PetPalette.Ink, adjustment);
-            savedHint = MakeLabel("大小松手应用 · 自动记住", 12, FontStyle.Regular, PetPalette.Muted, this);
+            updateStatus = MakeLabel("", 12, FontStyle.Regular, PetPalette.Muted, this);
+            updateStatus.TextAlign = ContentAlignment.MiddleRight;
+            refreshButton.ScaleFactor = uiScale; Controls.Add(refreshButton);
+            refreshButton.Click += async delegate { await CheckUpdatesAsync(); };
+            string version = new UpdateChecker().CurrentVersion;
+            tooltips.SetToolTip(refreshButton, "检查版本更新 · 当前 v" + version);
+            updateLink = MakeButton("", false, false, delegate { OpenUpdatePage(); }); updateLink.Visible = false;
             modes.Items = new string[] { "单独调整", "伙伴一起", "整个桌面" }; modes.AccessibleName = "调整范围";
             Setup(modes, adjustment);
             modes.SelectedIndexChanged += delegate { CaptureScale(); RefreshControls(); };
-            size.Minimum = 50; size.Maximum = 200; size.AccessibleName = "宠物大小"; Setup(size, adjustment);
+            size.Minimum = 50; size.Maximum = 300; size.AccessibleName = "宠物大小"; Setup(size, adjustment);
             size.ValueChanged += delegate
             {
                 if (refreshing) return;
@@ -86,10 +99,13 @@ namespace DeskPets
             transparency.LeftHint = "更清晰"; transparency.RightHint = "更通透"; transparency.AccessibleName = "背景透明度"; Setup(transparency, adjustment);
             transparency.ValueChanged += delegate { if (refreshing) return; settings.BackgroundTransparency = transparency.Value; changed(); };
             interaction.Text = "允许摸摸与拖动"; interaction.Checked = !settings.ClickThrough; interaction.AccessibleName = "允许摸摸与拖动"; Setup(interaction, this);
-            interaction.CheckedChanged += delegate { settings.ClickThrough = !interaction.Checked; changed(); };
+            interaction.CheckedChanged += delegate { if (refreshing) return; settings.ClickThrough = !interaction.Checked; changed(); };
             visibilityButton = MakeButton("", false, false, delegate { toggle(); RefreshState(); });
             collapseButton = MakeButton("收起窗口", true, false, delegate { Close(); });
             exitButton = MakeButton("退出", false, true, delegate { onExit(); });
+            resetButton = MakeButton("恢复默认", false, true, delegate { RestoreDefaults(); });
+            resetButton.AccessibleName = "恢复默认";
+            tooltips.SetToolTip(resetButton, "恢复三位默认伙伴、100%大小、默认背景和互动设置");
             foreach (PetDef def in defs)
             {
                 PetCard card = new PetCard(def, uiScale); card.Font = Font;
@@ -126,11 +142,59 @@ namespace DeskPets
             ModernButton button = new ModernButton(); button.Text = text; button.Font = F(13, primary ? FontStyle.Bold : FontStyle.Regular);
             button.ScaleFactor = uiScale; button.Primary = primary; button.Quiet = quiet; button.Click += click; Controls.Add(button); return button;
         }
+        void RestoreDefaults()
+        {
+            settings.RestoreDefaults();
+            PetDef initial = definitions.Find(delegate(PetDef def) { return def.Id == "ragdoll"; });
+            focusedId = initial == null ? (definitions.Count == 0 ? "" : definitions[0].Id) : initial.Id;
+            refreshing = true; interaction.Checked = !settings.ClickThrough; refreshing = false;
+            modes.SelectedIndex = 0; CaptureScale(); RefreshControls();
+            changed();
+            if (SizeAdjustmentFinished != null) SizeAdjustmentFinished(this, EventArgs.Empty);
+        }
+        async Task CheckUpdatesAsync()
+        {
+            if (updateCancellation != null) return;
+            CancellationTokenSource cancellation = new CancellationTokenSource();
+            updateCancellation = cancellation;
+            refreshButton.Busy = true; updateLink.Visible = false;
+            updateStatus.Text = "正在检查更新…";
+            try
+            {
+                UpdateResult result = await new UpdateChecker().CheckAsync(cancellation.Token);
+                if (IsDisposed || cancellation.IsCancellationRequested || result.Cancelled) return;
+                tooltips.SetToolTip(refreshButton, result.Message);
+                updateStatus.Text = result.Message;
+                if (result.Success && result.HasUpdate)
+                {
+                    updateUrl = result.ReleaseUrl;
+                    updateLink.Text = "更新至 v" + result.LatestVersion + "  ↗";
+                    updateLink.AccessibleName = "打开新版下载页面";
+                    updateStatus.Text = ""; updateLink.Visible = true;
+                }
+            }
+            catch (Exception)
+            {
+                if (!IsDisposed) updateStatus.Text = "暂时无法检查，请重试";
+            }
+            finally
+            {
+                if (!IsDisposed) refreshButton.Busy = false;
+                updateCancellation = null;
+                cancellation.Dispose();
+            }
+        }
+        void OpenUpdatePage()
+        {
+            if (string.IsNullOrEmpty(updateUrl)) return;
+            try { Process.Start(new ProcessStartInfo(updateUrl) { UseShellExecute = true }); }
+            catch (Exception) { updateStatus.Text = "暂时无法打开下载页面"; updateLink.Visible = false; }
+        }
         void CaptureScale()
         {
             scaleSnapshot = ScaleAdjustment.Capture(settings); refreshing = true;
             size.Minimum = modes.SelectedIndex == 0 ? 50 : scaleSnapshot.MinimumPercent(modes.SelectedIndex == 2);
-            size.Maximum = modes.SelectedIndex == 0 ? 200 : scaleSnapshot.MaximumPercent(modes.SelectedIndex == 2);
+            size.Maximum = modes.SelectedIndex == 0 ? 300 : scaleSnapshot.MaximumPercent(modes.SelectedIndex == 2);
             size.Value = modes.SelectedIndex == 0 ? settings.SizeFor(focusedId) : 100; refreshing = false;
         }
         void RefreshControls()
@@ -138,7 +202,7 @@ namespace DeskPets
             refreshing = true;
             PetDef active = definitions.Find(delegate(PetDef def) { return def.Id == focusedId; });
             bool single = modes.SelectedIndex == 0, everything = modes.SelectedIndex == 2;
-            if (single) { size.Minimum = 50; size.Maximum = 200; size.Value = settings.SizeFor(focusedId); }
+            if (single) { size.Minimum = 50; size.Maximum = 300; size.Value = settings.SizeFor(focusedId); }
             size.Text = single ? (active == null ? "宠物大小" : active.Name + "的大小") : everything ? "伙伴与背景一起缩放" : "已选伙伴一起缩放";
             size.LeftHint = single ? size.Minimum + "%" : "100% = 进入时大小";
             size.RightHint = single ? size.Maximum + "%" : size.Minimum + "–" + size.Maximum + "%";
@@ -170,7 +234,9 @@ namespace DeskPets
             int margin = P(24), gap = P(20), rightWidth = P(316), leftWidth = ClientSize.Width - P(48) - gap - rightWidth;
             int panelY = P(102), bottom = ClientSize.Height - P(78), contentHeight = bottom - panelY;
             title.SetBounds(margin, P(17), P(350), P(38)); subtitle.SetBounds(margin, P(56), P(420), P(25));
-            savedHint.SetBounds(ClientSize.Width - margin - P(240), P(38), P(240), P(24)); savedHint.TextAlign = ContentAlignment.MiddleRight;
+            refreshButton.SetBounds(ClientSize.Width - margin - P(36), P(29), P(36), P(36));
+            updateStatus.SetBounds(refreshButton.Left - P(250), P(30), P(240), P(34));
+            updateLink.SetBounds(refreshButton.Left - P(220), P(29), P(210), P(36));
             galleryTitle.SetBounds(margin, P(83), P(230), P(24));
             galleryHint.SetBounds(margin + P(230), P(83), Math.Max(P(120), leftWidth - P(230)), P(24)); galleryHint.TextAlign = ContentAlignment.MiddleRight;
             int cardsY = P(117), cardGap = P(12), cardWidth = (leftWidth - cardGap) / 2, cardHeight = (bottom - cardsY - cardGap) / 2;
@@ -182,14 +248,23 @@ namespace DeskPets
             height.SetBounds(inner, P(310), w, P(77)); transparency.SetBounds(inner, P(398), w, P(77));
             int footerY = ClientSize.Height - P(58);
             interaction.SetBounds(margin, footerY, P(225), P(36)); exitButton.SetBounds(ClientSize.Width - margin - P(60), footerY, P(60), P(36));
-            collapseButton.SetBounds(exitButton.Left - P(124), footerY, P(112), P(36)); visibilityButton.SetBounds(collapseButton.Left - P(122), footerY, P(112), P(36)); Invalidate();
+            collapseButton.SetBounds(exitButton.Left - P(124), footerY, P(112), P(36)); visibilityButton.SetBounds(collapseButton.Left - P(122), footerY, P(112), P(36));
+            resetButton.SetBounds(visibilityButton.Left - P(124), footerY, P(112), P(36)); Invalidate();
         }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e); using (Pen p = new Pen(PetPalette.Line)) e.Graphics.DrawLine(p, P(24), ClientSize.Height - P(76), ClientSize.Width - P(24), ClientSize.Height - P(76));
         }
         protected override void Dispose(bool disposing)
-        { if (disposing && animationTimer != null) animationTimer.Dispose(); base.Dispose(disposing); }
+        {
+            if (disposing)
+            {
+                if (updateCancellation != null) updateCancellation.Cancel();
+                if (animationTimer != null) animationTimer.Dispose();
+                tooltips.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 
     sealed class PetCard : Control

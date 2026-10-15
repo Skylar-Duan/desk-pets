@@ -3,7 +3,7 @@
   "use strict";
 
   var PETS = ["ragdoll", "golden", "nuomi", "lolo"];
-  var ASSET_REV = "20261015-hd-interaction-r6";
+  var ASSET_REV = "20261015-v120-size300";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var playground = document.getElementById("playground");
 
@@ -49,6 +49,11 @@
 
   WebPet.prototype.groundY = function () {
     return playground.clientHeight - this.h - 34;
+  };
+
+  WebPet.prototype.clampX = function (x) {
+    var room = playground.clientWidth - this.w;
+    return room < 0 ? room / 2 : Math.max(0, Math.min(room, x));
   };
 
   WebPet.prototype.anim = function () {
@@ -104,17 +109,23 @@
         }
       }
       this.x += this.vx * dt;
+      if (this.w > playground.clientWidth) { this.x = this.clampX(this.x); this.vx = 0; }
+      else {
       if (this.x < 0) { this.x = 0; this.vx = Math.abs(this.vx); this.facing = 1; }
       var maxX = playground.clientWidth - this.w;
       if (this.x > maxX) { this.x = maxX; this.vx = -Math.abs(this.vx); this.facing = -1; }
+      }
       this.y = ground;
     } else if (this.state === "fall") {
       this.vy += 2500 * dt;
       this.x += this.vx * dt;
       this.y += this.vy * dt;
+      if (this.w > playground.clientWidth) { this.x = this.clampX(this.x); this.vx = 0; }
+      else {
       if (this.x < 0) { this.x = 0; this.vx = -this.vx * 0.5; }
       var mX = playground.clientWidth - this.w;
       if (this.x > mX) { this.x = mX; this.vx = -this.vx * 0.5; }
+      }
       if (this.vx !== 0) this.facing = this.vx >= 0 ? 1 : -1;
       if (this.y >= ground) {
         this.y = ground;
@@ -296,21 +307,21 @@
         }
       });
       group.appendChild(check); group.appendChild(document.createTextNode(" " + p.def.name + " "));
-      var size = document.createElement("input"); size.type = "range"; size.min = 50; size.max = 200; size.step = 1; size.value = 100;
+      var size = document.createElement("input"); size.type = "range"; size.min = 50; size.max = 300; size.step = 1; size.value = 100;
       var readout = document.createElement("output"); readout.textContent = "100%";
       size.setAttribute("aria-label", p.def.name + "演示大小");
       size.addEventListener("input", function() {
-        var percent = Math.max(50, Math.min(200, Number(size.value) || 100)); size.value = percent;
+        var percent = Math.max(50, Math.min(300, Number(size.value) || 100)); size.value = percent;
         readout.textContent = percent + "%";
         var foot = p.y + p.h, center = p.x + p.w / 2;
         p.scale = (p.def.scale || 1) * percent / 100;
         p.w = p.def.frameSize[0] * p.scale; p.h = p.def.frameSize[1] * p.scale;
-        p.x = Math.max(0, Math.min(playground.clientWidth - p.w, center - p.w / 2)); p.y = foot - p.h;
+        p.x = p.clampX(center - p.w / 2); p.y = foot - p.h;
         p.el.style.width = p.w + "px"; p.el.style.height = p.h + "px"; p.render();
       });
       group.appendChild(size); group.appendChild(readout); selectors.appendChild(group);
     });
-    window.addEventListener("resize", function() { pets.forEach(function(p) { p.x = Math.max(0,Math.min(p.x,playground.clientWidth-p.w)); if (!p.dragging && p.state !== "fall") p.y = p.groundY(); p.render(); }); });
+    window.addEventListener("resize", function() { pets.forEach(function(p) { p.x = p.clampX(p.x); if (!p.dragging && p.state !== "fall") p.y = p.groundY(); p.render(); }); });
     window.DeskPetsDemo = {pets:pets, defs:defs};
   }).catch(function (err) {
     playground.innerHTML = '<p style="padding:20px">素材加载失败：' + err + "</p>";

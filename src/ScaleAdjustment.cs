@@ -35,8 +35,8 @@ namespace DeskPets
 
         public int MaximumPercent(bool includeBackground)
         {
-            double factor = 2.0;
-            foreach (int size in sizes.Values) factor = Math.Min(factor, 200.0 / size);
+            double factor = 3.0;
+            foreach (int size in sizes.Values) factor = Math.Min(factor, 300.0 / size);
             if (includeBackground) factor = Math.Min(factor, 160.0 / backgroundHeight);
             return Math.Max(100, (int)Math.Floor(factor * 100 + 0.000001));
         }
@@ -47,7 +47,7 @@ namespace DeskPets
             IsLimited = bounded != percent;
             AppliedPercent = bounded;
             foreach (KeyValuePair<string, int> item in sizes)
-                settings.PetSizes[item.Key] = Math.Max(50, Math.Min(200, (int)Math.Round(item.Value * bounded / 100.0)));
+                settings.PetSizes[item.Key] = Math.Max(50, Math.Min(300, (int)Math.Round(item.Value * bounded / 100.0)));
             if (includeBackground)
                 settings.BackgroundHeight = Math.Max(32, Math.Min(160, (int)Math.Round(backgroundHeight * bounded / 100.0)));
         }

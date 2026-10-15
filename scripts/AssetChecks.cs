@@ -42,7 +42,7 @@ static class AssetChecks
                     foreach (Bitmap image in animation.Right)
                         Require(image.Width == def.SpriteW && image.Height == def.SpriteH, "单格尺寸不一致");
                 }
-                foreach (int size in new int[] { 50, 100, 150, 200, 100 })
+                foreach (int size in new int[] { 50, 100, 150, 200, 300, 100 })
                 {
                     def.SetSize(size);
                     foreach (StateAnim animation in def.States.Values)
@@ -67,7 +67,7 @@ static class AssetChecks
             Require(nuomi.States["sleep"].Right.Length == 4, "未装入新睡眠动作");
             Require(nuomi.States["drag"].Right.Length == 2 && nuomi.States["fall"].Right.Length == 2, "未装入空中动作");
             foreach (PetDef subject in new PetDef[] { nuomi, lolo })
-            foreach (int size in new int[] { 50, 100, 200 })
+            foreach (int size in new int[] { 50, 100, 200, 300 })
             {
                 subject.SetSize(size);
                 PetBrain brain = new PetBrain(subject, subject.Playful);
@@ -176,7 +176,7 @@ static class AssetChecks
                     "互动模式不能关闭点击穿透");
             }
             Require(!new UserSettings().ClickThrough, "新用户默认应可以拖动宠物");
-            Console.WriteLine("PASS: 4 pets at 50/100/150/200%, all state/direction ground anchors, denser backgrounds, native interaction flags.");
+            Console.WriteLine("PASS: 4 pets at 50/100/150/200/300%, all state/direction ground anchors, denser backgrounds, native interaction flags.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import urllib.error
 import urllib.request
@@ -11,7 +12,6 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = "Skylar-Duan/desk-pets"
-TAG = "v1.1.0"
 parser = argparse.ArgumentParser()
 parser.add_argument("--replace-same-version", action="store_true", help="按用户授权更新同一版本附件，不增加版本号")
 args = parser.parse_args()
@@ -25,7 +25,12 @@ head = git("rev-parse", "HEAD")
 subprocess.check_call(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", head, "origin/main"])
 report = json.loads((ROOT / "_work/package-result.json").read_text(encoding="utf-8-sig"))
 package = Path(report["zip"])
-assert report["version"] == "1.1.0"
+version = report.get("version", "")
+if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+    raise RuntimeError("package-result.json中的版本号格式无效，应为X.Y.Z")
+TAG = "v" + version
+if not package.is_file():
+    raise RuntimeError("打包结果文件不存在：" + str(package))
 with zipfile.ZipFile(package) as archive:
     assert archive.testzip() is None
 credentials = subprocess.run(["git", "credential", "fill"], input="protocol=https\nhost=github.com\npath=Skylar-Duan/desk-pets.git\n\n",
@@ -48,13 +53,19 @@ def api(url, method="GET", data=None, binary=False):
         return json.loads(raw) if raw else None
 
 base = "https://api.github.com/repos/" + REPO
+if git("rev-parse", "origin/main") != head:
+    raise RuntimeError("当前HEAD尚未推送为origin/main；请先推送后再发布")
 try:
     release = api(base + "/releases/tags/" + TAG)
 except urllib.error.HTTPError as error:
     if error.code != 404:
         raise RuntimeError("GitHub Release读取失败，HTTP " + str(error.code)) from None
-    release = api(base + "/releases", "POST", {"tag_name": TAG, "target_commitish": head, "name": "桌面小伙伴 1.1.0",
-        "draft": True, "body": "小布、糯米和现代金毛洛洛可独立选择、调节大小，像素阿金也保留。新增可调高度及透明度的桌面背景，修复字体裁切、拖动、各动作体型与贴地。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+    if version == "1.2.0":
+        body = "新增恢复默认设置和手动检查更新；宠物大小范围扩展至50%–300%。陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"
+    else:
+        body = "发布桌面小伙伴 " + version + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"
+    release = api(base + "/releases", "POST", {"tag_name": TAG, "target_commitish": head, "name": "桌面小伙伴 " + version,
+        "draft": True, "body": body})
 asset = next((a for a in release["assets"] if a["name"] == "DeskPets.zip"), None)
 digest = "sha256:" + hashlib.sha256(package.read_bytes()).hexdigest()
 if asset is not None:
@@ -71,11 +82,13 @@ if asset is not None:
 else:
     asset = api(release["upload_url"].split("{")[0] + "?name=DeskPets.zip", "POST", package.read_bytes(), True)
 assert asset["size"] == package.stat().st_size
+if asset.get("digest") != digest:
+    raise RuntimeError("Release附件摘要核验失败")
 if release["draft"]:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"draft": False})
 if args.replace_same_version:
     release = api(base + "/releases/" + str(release["id"]), "PATCH", {"body":
-        "重做伙伴管理窗口，使用拖动滑杆单独调整、联动伙伴或同时调整背景；修复轻点时突然变大，糯米改用高清源素材。洛洛默认体型提高到前版150%，新100%对应旧150%；已保存大小自动换算。四款伙伴保留，仍有八种动作。\n\n本轮继续使用1.1.0。本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
+        "新增恢复默认设置和手动检查更新；宠物大小范围扩展至50%–300%。陪伴离线运行，手动检查更新时联网，不会自动检查或下载安装。\n\n本包源代码提交：" + head + "。\n\n下载DeskPets.zip，解压后运行DeskPets.exe；支持Windows 10/11，使用系统自带.NET Framework 4.8。"})
 else:
     release = api(base + "/releases/" + str(release["id"]))
 asset = next(a for a in release["assets"] if a["name"] == "DeskPets.zip")
