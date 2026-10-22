@@ -10,6 +10,9 @@ namespace DeskPets
         [STAThread]
         static void Main(string[] args)
         {
+            // Activates the actual shipped CLR and framework references without creating UI
+            // or signalling an already running pet. Used to verify installed builds.
+            if (Array.IndexOf(args, "--check-runtime") >= 0) return;
             bool createdNew;
             using (Mutex mutex = new Mutex(true, "DeskPets_SingleInstance", out createdNew))
             {

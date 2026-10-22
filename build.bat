@@ -10,4 +10,6 @@ if not exist "%CSC%" set CSC=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\csc.exe
   /out:DeskPets.exe src\*.cs
 
 if %errorlevel% neq 0 (echo BUILD FAILED & exit /b 1)
+copy /Y src\DeskPets.exe.config DeskPets.exe.config >nul
+if %errorlevel% neq 0 (echo CONFIG COPY FAILED & exit /b 1)
 echo BUILD OK: DeskPets.exe

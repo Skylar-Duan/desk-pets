@@ -19,6 +19,18 @@ static class UpdateChecks
             + BaseUrl + "download/" + tag + "/DeskPets.zip\"}]" + extras + "}";
     }
 
+    static string Asset(string name, string tag, string state)
+    {
+        return "{\"name\":\"" + name + "\",\"state\":\"" + state
+            + "\",\"browser_download_url\":\"" + BaseUrl + "download/" + tag + "/" + name + "\"}";
+    }
+
+    static string WithAssets(string assets)
+    {
+        return "{\"tag_name\":\"v1.2.1\",\"draft\":false,\"prerelease\":false,\"html_url\":\""
+            + BaseUrl + "tag/v1.2.1\",\"assets\":[" + assets + "]}";
+    }
+
     static void Reject(string json, string message)
     {
         try { UpdateChecker.ParseReleaseJson(json, "1.2.0"); }
@@ -39,6 +51,21 @@ static class UpdateChecks
         Require(newer.Success && newer.HasUpdate && newer.LatestVersion == "1.10.0", "Unknown fields must not break old clients.");
         Require(newer.DownloadUrl == BaseUrl + "download/v1.10.0/DeskPets.zip", "Published zip link must be available.");
         Require(newer.ReleaseUrl == BaseUrl + "tag/v1.10.0", "Details link must be available.");
+        string setup = Asset("DeskPets-1.2.1-setup.exe", "v1.2.1", "uploaded");
+        string zip = Asset("DeskPets.zip", "v1.2.1", "uploaded");
+        string setupUrl = BaseUrl + "download/v1.2.1/DeskPets-1.2.1-setup.exe";
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(zip + "," + setup), "1.2.0").DownloadUrl == setupUrl,
+            "The installer must win even when ZIP is listed first.");
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(setup + "," + zip), "1.2.0").DownloadUrl == setupUrl,
+            "The installer must win when listed first.");
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(setup), "1.2.0").DownloadUrl == setupUrl,
+            "Installer-only releases must offer a download.");
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(setup.Replace("uploaded", "new") + "," + zip), "1.2.0").DownloadUrl.EndsWith("DeskPets.zip"),
+            "Incomplete installers must fall back to the uploaded ZIP.");
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(setup.Replace("DeskPets-1.2.1-setup.exe", "other.exe")), "1.2.0").DownloadUrl == null,
+            "Unknown executables must not become installers.");
+        Require(UpdateChecker.ParseReleaseJson(WithAssets(setup.Replace("download/v1.2.1/DeskPets-1.2.1-setup.exe", "download/v1.2.1/payload.exe")), "1.2.0").DownloadUrl == null,
+            "The asset name and actual downloaded filename must agree.");
         UpdateResult same = UpdateChecker.ParseReleaseJson(Release("v1.2.0", ""), "1.2.0");
         Require(!same.HasUpdate && same.Message.Contains("最新"), "Equal versions must show current status.");
         UpdateResult ahead = UpdateChecker.ParseReleaseJson(Release("v1.1.0", ""), "1.2.0");

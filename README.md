@@ -1,7 +1,7 @@
 # desk-pets · 桌面小伙伴
 
 独立Windows桌面宠物软件：像素布偶猫「小布」、像素金毛「阿金」、现代玩具风布偶猫「糯米」、现代金色寻回猎犬「洛洛」。在控制窗口勾选想展示的动物，常驻桌面。
-灵感对标 OpenAI Codex 桌宠的审美与克制感，但完全独立、零依赖；陪伴离线运行，手动检查更新时联网。
+灵感对标 OpenAI Codex 桌宠的审美与克制感，独立运行；陪伴离线运行，手动检查更新时联网。
 
 ## 功能
 
@@ -18,11 +18,17 @@
 
 ## 交付/安装
 
-当前版本 **1.2.0**。打包：`build.bat` 后运行 `powershell -File scripts/package.ps1`，得到 `dist/桌面小伙伴-1.2.0.zip`；包含 exe、四款宠物、三款背景和使用说明。1.2.0 新增恢复默认设置和手动检查更新，宠物大小范围扩展至50–300%。恢复默认只将所有宠物大小设为100%、背景高度设为60px；保留当前宠物选择、总显隐、背景开关与样式、透明度及互动设置。新用户的背景高度默认60px，已有高度不会自动迁移，需点击恢复默认才会重置。陪伴离线运行，手动检查更新时联网；不会自动检查或下载安装。
+当前版本 **1.2.1**。正式下载为 `DeskPets-1.2.1-setup.exe`：双击后按中文向导安装，完成后可从桌面或开始菜单打开「桌面小伙伴」。默认安装到 `%LOCALAPPDATA%/Programs/DeskPets/`，可在向导中更改位置。程序包含四款宠物、三款背景和使用说明。
 
-本机安装：`powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-local.ps1`。它正常退出旧实例、复制核对文件、创建桌面与开始菜单的「桌面小伙伴」快捷方式并打开软件；安装到 `%LOCALAPPDATA%/Programs/DeskPets/`。无须管理员权限，使用系统自带 .NET Framework 4.8。
+支持 Windows 10/11。普通安装无须管理员权限；安装器检查 .NET Framework 4.8 或更新版本，缺少时会联网下载微软运行组件，安装组件可能需要管理员确认或重启。已有合适运行环境时，安装无需联网。安装器的环境检查不代表能修复已损坏的 Windows 组件；安装后仍无法启动时，请保留报错和 Windows 版本以便排查。
 
-也可以解压后直接运行。设置在 `%LOCALAPPDATA%/DeskPets/settings.json`，覆盖更新不改用户选择。关闭控制窗口只是收起；退出软件使用窗口或托盘的「退出」。
+升级直接运行新版安装包，保留宠物选择和设置；卸载使用 Windows「设置 → 应用 → 桌面小伙伴」。设置在 `%LOCALAPPDATA%/DeskPets/settings.json`，卸载保留设置，方便重装恢复。关闭控制窗口只是收起；退出软件使用窗口或托盘的「退出」。
+
+`DeskPets.zip` 保留为兼容便携包，供旧版本的更新入口和需要免安装的用户使用；全部解压后运行文件夹内的 `DeskPets.exe`，不要单独移走程序或素材。官网主按钮下载安装包。
+
+构建发布：先运行 `build.bat`，再运行 `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1`；脚本执行发布检查并生成安装包、便携 ZIP 和 `_work/package-result.json`。本机安装按 02 项目约定运行 `powershell -NoProfile -ExecutionPolicy Bypass -File ../_work/install-local.ps1 -Installer <安装包完整路径> -ProcessName DeskPets -AppName 桌面小伙伴`。确认提交已推送后运行 `python scripts/publish-release.py`，同时发布安装包与兼容 ZIP。
+
+1.2.0 的恢复默认、手动检查更新和50–300%大小调节均保留。恢复默认只将所有宠物大小设为100%、背景高度设为60px；保留选择、显隐、背景开关与样式、透明度及互动设置。新用户背景高度默认60px，已有高度需点击恢复默认才会重置。陪伴离线运行，手动检查更新时联网；不会自动检查或下载安装。
 
 ## 构建
 

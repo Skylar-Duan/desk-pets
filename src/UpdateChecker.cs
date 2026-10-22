@@ -170,6 +170,8 @@ namespace DeskPets
             string releaseUrl = StringField(release, "html_url");
             if (!IsAllowedReleaseUrl(releaseUrl, false)) throw new FormatException("Invalid release link.");
             string downloadUrl = null;
+            string zipUrl = null;
+            string installerName = "DeskPets-" + latest.Display + "-setup.exe";
             var assets = release.ContainsKey("assets") ? release["assets"] as IEnumerable : null;
             if (assets != null)
             {
@@ -179,12 +181,18 @@ namespace DeskPets
                     if (asset == null) continue;
                     string name = StringField(asset, "name");
                     string url = StringField(asset, "browser_download_url");
-                    // This portable app ships a zip. Unknown future asset types fall back to details.
-                    if (name != null && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                        && StringField(asset, "state") == "uploaded" && IsAllowedReleaseUrl(url, true))
-                    { downloadUrl = url; break; }
+                    if (StringField(asset, "state") != "uploaded" || !IsAllowedReleaseUrl(url, true)) continue;
+                    string assetPath = new Uri(url).AbsolutePath;
+                    if (!string.Equals(Uri.UnescapeDataString(assetPath.Substring(assetPath.LastIndexOf('/') + 1)),
+                        name, StringComparison.Ordinal)) continue;
+                    // Prefer the setup wizard regardless of the API's asset ordering.
+                    // Keep ZIP releases usable for existing portable versions.
+                    if (name == installerName) downloadUrl = url;
+                    else if (name != null && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                        && zipUrl == null) zipUrl = url;
                 }
             }
+            if (downloadUrl == null) downloadUrl = zipUrl;
             int comparison = latest.CompareTo(SemanticVersion.Parse(current));
             bool hasUpdate = comparison > 0;
             string display = latest.Display;
